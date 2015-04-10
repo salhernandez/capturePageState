@@ -5,47 +5,46 @@
       <title>Full page screen catpure</title>
       <!-- there are rendering bugs when styles aren't inline... -->
       <style>
-body {
-    font: normal 12px/16px helvetica,aria,sans-serif;
-}
-div,p { margin: 0; padding: 0; }
+        body { font: normal 12px/16px helvetica,aria,sans-serif; }
+        div,p { margin: 0; padding: 0; }
+        p { word-wrap: break-word; }
 
-.clr { overflow: hidden; }
-.left { float: left; }
-.right { float: right; }
+        .clr { overflow: hidden; }
+        .left { float: left; }
+        .right { float: right; }
 
-a {
-	color: #3681b3;
-	text-decoration: none;
-}
-a:hover { color: #265c80; }
-a:active { color: #000; }
+        a {
+        	color: #3681b3;
+        	text-decoration: none;
+        }
 
-#wrap {
-    width: 300px;
-    padding-top: 9px;
-    font-size: 12px;
-    color: #888;
-}
+        a:hover { color: #265c80; }
+        a:active { color: #000; }
 
-#wrap>div { display: none; }
-#wrap>#loading { display: block; }
+        #wrap {
+            width: 300px;
+            padding-top: 9px;
+            font-size: 12px;
+            color: #888;
+        }
 
-#loading .loader {
-    position: relative;
-    border-top: 12px dotted #000;
-    height: 9px;
-}
+        #wrap>div { display: none; }
+        #wrap>#loading { display: block; }
 
-#loading .bar {
-    position: absolute;
-    top: -21px;
-    left: 0;
-    height: 30px;
-    width: 0%;
-    background: #fff url(loader.gif) scroll no-repeat center right;
-}
-p { word-wrap: break-word; }
+        #loading .loader {
+            position: relative;
+            border-top: 12px dotted #000;
+            height: 9px;
+        }
+
+        #loading .bar {
+            position: absolute;
+            top: -21px;
+            left: 0;
+            height: 30px;
+            width: 0%;
+            background: #fff url(loader.gif) scroll no-repeat center right;
+        }
       </style>
   </head>
   <body>

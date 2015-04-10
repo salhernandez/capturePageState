@@ -1,8 +1,8 @@
 {
-  "name": "Full Page Screen Capture",
-  "version": "0.0.15",
+  "name": "Standardized Screenshot",
+  "version": "0.0.1",
   "manifest_version": 2,
-  "description": "Screen capture your current page in entirety and reliably!",
+  "description": "Takes standardized screenshots.",
   "browser_action": {
     "default_icon": "icon.png",
     "default_popup": "popup.html"

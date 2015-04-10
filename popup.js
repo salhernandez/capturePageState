@@ -1,230 +1,178 @@
 // Copyright (c) 2012,2013 Peter Coles - http://mrcoles.com/ - All rights reserved.
+// Copyright (c) 2015 Jean-Martin Archer
 // Use of this source code is governed by the MIT License found in LICENSE
-
-//
-// console object for debugging
-//
-
-var log = (function() {
-    var parElt = document.getElementById('wrap'),
-        logElt = document.createElement('div');
-    logElt.id = 'log';
-    logElt.style.display = 'block';
-    parElt.appendChild(logElt);
-
-    return function() {
-        var a, p, results = [];
-        for (var i=0, len=arguments.length; i<len; i++) {
-            a = arguments[i];
-            try {
-                a = JSON.stringify(a, null, 2);
-            } catch(e) {}
-            results.push(a);
-        }
-        p = document.createElement('p');
-        p.innerText = results.join(' ');
-        p.innerHTML = p.innerHTML.replace(/ /g, '&nbsp;');
-        logElt.appendChild(p);
-    };
-})();
-
-//
-// utility methods
-//
-function $(id) { return document.getElementById(id); }
-function show(id) { $(id).style.display = 'block'; }
-function hide(id) { $(id).style.display = 'none'; }
 
 //
 // URL Matching test - to verify we can talk to this URL
 //
 var matches = ['http://*/*', 'https://*/*', 'ftp://*/*', 'file://*/*'],
-    noMatches = [/^https?:\/\/chrome.google.com\/.*$/];
+	noMatches = [/^https?:\/\/chrome.google.com\/.*$/];
 function testURLMatches(url) {
-    // couldn't find a better way to tell if executeScript
-    // wouldn't work -- so just testing against known urls
-    // for now...
-    var r, i;
-    for (i=noMatches.length-1; i>=0; i--) {
-        if (noMatches[i].test(url)) {
-            return false;
-        }
-    }
-    for (i=matches.length-1; i>=0; i--) {
-        r = new RegExp('^' + matches[i].replace(/\*/g, '.*') + '$');
-        if (r.test(url)) {
-            return true;
-        }
-    }
-    return false;
+	// couldn't find a better way to tell if executeScript
+	// wouldn't work -- so just testing against known urls
+	// for now...
+	var r, i;
+	for (i=noMatches.length-1; i>=0; i--) {
+		if (noMatches[i].test(url)) {
+			return false;
+		}
+	}
+	for (i=matches.length-1; i>=0; i--) {
+		r = new RegExp('^' + matches[i].replace(/\*/g, '.*') + '$');
+		if (r.test(url)) {
+			return true;
+		}
+	}
+	return false;
 }
 
-//
-// Events
-//
-var screenshot, contentURL = '';
+var PIXEL_RATIO = (function () {
+	var ctx = document.createElement("canvas").getContext("2d"),
+		dpr = window.devicePixelRatio || 1,
+		bsr = ctx.webkitBackingStorePixelRatio ||
+			ctx.mozBackingStorePixelRatio ||
+			ctx.msBackingStorePixelRatio ||
+			ctx.oBackingStorePixelRatio ||
+			ctx.backingStorePixelRatio || 1;
 
-function sendScrollMessage(tab) {
-    contentURL = tab.url;
-    screenshot = {};
-    chrome.tabs.sendRequest(tab.id, {msg: 'scrollPage'}, function() {
-        // We're done taking snapshots of all parts of the window. Display
-        // the resulting full screenshot image in a new browser tab.
-        openPage();
-    });
+	return dpr / bsr;
+})();
+
+function createHiDPICanvas(w, h, ratio) {
+	if (!ratio) { ratio = PIXEL_RATIO; }
+	var canvas = document.createElement("canvas");
+	canvas.width = w * ratio;
+	canvas.height = h * ratio;
+	canvas.style.width = w + "px";
+	canvas.style.height = h + "px";
+	canvas.getContext("2d").setTransform(ratio, 0, 0, ratio, 0, 0);
+	return canvas;
 }
 
-function sendLogMessage(data) {
-    chrome.tabs.getSelected(null, function(tab) {
-        chrome.tabs.sendRequest(tab.id, {msg: 'logMessage', data: data}, function() {});
-    });
+function capturePage(data) {
+	var screenshot = {};
+
+	var margins = {top: 15, bottom: 25, left: 25, right: 25};
+	var topBar = {height: 36};
+	var canvas = createHiDPICanvas(data.totalWidth + margins.left + margins.right, data.totalHeight + margins.top + margins.bottom + topBar.height);
+	var ctx = canvas.getContext('2d');
+
+	chrome.tabs.captureVisibleTab(
+		null, {format: 'png', quality: 100}, function(dataURI) {
+			if (dataURI) {
+				var image = new Image();
+				var topBarImage = new Image();
+				topBarImage.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFMAAAAkCAYAAAD1lQZ5AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAArdJREFUeNrsmM9uElEUxj9grmSgYJWoWFpS3ftnQZG4aKMm6kJ9Ak30ATSpuqvLutSFvoALn0BdqImadqFIXfhnb5sRaNWgLQpEB4L3DKPpgty54BC6OF9yNvd+czL55c7lOwQsy4Krs7JmZU3JGgHLSz9lLcm6LesRLQTdjXlZD2QdY5DaGnF5PXT5ISBP5hl3gfV/Okcn8ypz8EWzBDPDHHxRhmDGmIMvigWZgX9imAyTYTJMFsMciox+Hwy0WogsvYb54R3E5zVnzd6TROPAIdSnjqAdCun3ajcR3XgOs5qH+F3s9No2jkY8h9r242gHenvNpuz3pLaIxUYBll1y1tIihWkzi1PRaRgBYyAwaZxs9/pQqFrFzvv3INZWu+7byb34dv4iWvG4d6/mdyRKtyB+Wd17hdOopK6hZezQerdKax03K3exbH/qur9PTGAucRmJ0OjwP3M6kSqQJNojT6DZ9DyRKpBOL7lHHvLqnEgVSBLtzVfuwNboN3CY9GmrQG4GGnlTUHqiGy+UIDcDJa+X6NNWgfyrFbuIp9I7dJh0R/rlNauv9HtpeOmO1FUv3oHBFOWSvne17HHiVvR7aXg/2pZ2v+UevFsjGgV9bO/zL3AIoeHDtMdS+l4ZlZT74Un9XjIqeWm/SGv3o6g0dJiUI/3yUo7U7qXhpRypq168A4NZz2SdHKlzKsmrEgVyypGevcITjtdLJ2UgnxTeJ5g85B06zLZhOIFcBdQJ7RcuOV5lL3kPUiBXAe2E9utaU5CQnhuJK04wV4EkjxjAFNTXBPRvnCzkEXn/FsbXL53QvGs36gcPo57N9T5Orj+D+eOlHCfL7h05hkbsKGqjJ/oaJx/XFrDQyKNod0bdcZHEjJnD6ejM1honWfyvEcNkmAyTxTAZJsNkMUyGyTAZJss3/RFgAH76+ziLxwJqAAAAAElFTkSuQmCC';
+				topBarImage.onload = function () {
+					var totalWidth = data.totalWidth + 12;
+					var leftWidth = 60;
+					var offset = 70;
+					var shadowEdgeOffset = 3;
+
+					ctx.save();
+					ctx.rect(margins.left + shadowEdgeOffset, margins.top + shadowEdgeOffset, data.totalWidth - (shadowEdgeOffset * 2), data.totalHeight + topBar.height - shadowEdgeOffset);
+					ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+					ctx.shadowBlur = 20 * PIXEL_RATIO;
+					ctx.shadowOffsetX = 0 * PIXEL_RATIO;
+					ctx.shadowOffsetY = 5 * PIXEL_RATIO;
+					ctx.fill();
+					ctx.restore();
+
+					ctx.drawImage(topBarImage, offset, 0, 5, leftWidth, margins.left + shadowEdgeOffset, margins.top, totalWidth - 20, leftWidth); // middle
+					ctx.drawImage(topBarImage, 0, 0, offset, leftWidth, margins.left, margins.top, offset, leftWidth); //leftSide
+					ctx.drawImage(topBarImage, offset, 0, offset, leftWidth, totalWidth, margins.top, offset, leftWidth); //rightSide
+				};
+
+				image.onload = function() {
+					ctx.drawImage(image, margins.left, margins.top + topBar.height, data.totalWidth, data.totalHeight);
+					openPage(canvas, data);
+				};
+				image.src = dataURI;
+			}
+		});
 }
 
-chrome.extension.onRequest.addListener(function(request, sender, callback) {
-    if (request.msg === 'capturePage') {
-        capturePage(request, sender, callback);
-    } else {
-        console.error('Unknown message received from content script: ' + request.msg);
-    }
-});
-
-
-function capturePage(data, sender, callback) {
-    var canvas;
-
-    $('bar').style.width = parseInt(data.complete * 100, 10) + '%';
-
-    // Get window.devicePixelRatio from the page, not the popup
-    var scale = data.devicePixelRatio && data.devicePixelRatio !== 1 ?
-        1 / data.devicePixelRatio : 1;
-
-    // if the canvas is scaled, then x- and y-positions have to make
-    // up for it
-    if (scale !== 1) {
-        data.x = data.x / scale;
-        data.y = data.y / scale;
-        data.totalWidth = data.totalWidth / scale;
-        data.totalHeight = data.totalHeight / scale;
-    }
-
-
-    if (!screenshot.canvas) {
-        canvas = document.createElement('canvas');
-        canvas.width = data.totalWidth;
-        canvas.height = data.totalHeight;
-        screenshot.canvas = canvas;
-        screenshot.ctx = canvas.getContext('2d');
-
-        // sendLogMessage('TOTALDIMENSIONS: ' + data.totalWidth + ', ' + data.totalHeight);
-
-        // // Scale to account for device pixel ratios greater than one. (On a
-        // // MacBook Pro with Retina display, window.devicePixelRatio = 2.)
-        // if (scale !== 1) {
-        //     // TODO - create option to not scale? It's not clear if it's
-        //     // better to scale down the image or to just draw it twice
-        //     // as large.
-        //     screenshot.ctx.scale(scale, scale);
-        // }
-    }
-
-    // sendLogMessage(data);
-
-    chrome.tabs.captureVisibleTab(
-        null, {format: 'png', quality: 100}, function(dataURI) {
-            if (dataURI) {
-                var image = new Image();
-                image.onload = function() {
-                    // sendLogMessage('img dims: ' + image.width + ', ' + image.height);
-                    screenshot.ctx.drawImage(image, data.x, data.y);
-                    callback(true);
-                };
-                image.src = dataURI;
-            }
-        });
+function max(nums) {
+	return Math.max.apply(Math, nums.filter(function(x) { return x; }));
 }
 
-function openPage() {
-    // standard dataURI can be too big, let's blob instead
-    // http://code.google.com/p/chromium/issues/detail?id=69227#c27
+function openPage(canvas, data) {
+	// standard dataURI can be too big, let's blob instead
+	// http://code.google.com/p/chromium/issues/detail?id=69227#c27
 
-    var dataURI = screenshot.canvas.toDataURL();
+	var dataURI = canvas.toDataURL();
+	var contentURL = '';
+	var byteString = atob(dataURI.split(',')[1]);
+	var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
 
-    // convert base64 to raw binary data held in a string
-    // doesn't handle URLEncoded DataURIs
-    var byteString = atob(dataURI.split(',')[1]);
+	var ab = new ArrayBuffer(byteString.length);
+	var ia = new Uint8Array(ab);
+	for (var i = 0; i < byteString.length; i++) {
+		ia[i] = byteString.charCodeAt(i);
+	}
 
-    // separate out the mime component
-    var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+	var blob = new Blob([ab], {type: mimeString});
+	var size = blob.size + (1024/2);
+	var name = contentURL.split('?')[0].split('#')[0];
+	if (name) {
+		name = name
+			.replace(/^https?:\/\//, '')
+			.replace(/[^A-z0-9]+/g, '-')
+			.replace(/-+/g, '-')
+			.replace(/^[_\-]+/, '')
+			.replace(/[_\-]+$/, '');
+		name = '-' + name;
+	} else {
+		name = '';
+	}
+	name = 'screencapture' + name + '-' + Date.now() + '.png';
 
-    // write the bytes of the string to an ArrayBuffer
-    var ab = new ArrayBuffer(byteString.length);
-    var ia = new Uint8Array(ab);
-    for (var i = 0; i < byteString.length; i++) {
-        ia[i] = byteString.charCodeAt(i);
-    }
+	function onwriteend() {
+		// open the file that now contains the blob
+		window.open('filesystem:chrome-extension://' + chrome.i18n.getMessage('@@extension_id') + '/temporary/' + name);
+		chrome.windows.update(chrome.windows.WINDOW_ID_CURRENT, {width: data.originalWidth});
+	}
 
-    // create a blob for writing to a file
-    var blob = new Blob([ab], {type: mimeString});
+	function errorHandler() {
+		show('uh-oh');
+	}
 
-    // come up with file-system size with a little buffer
-    var size = blob.size + (1024/2);
-
-    // come up with a filename
-    var name = contentURL.split('?')[0].split('#')[0];
-    if (name) {
-        name = name
-            .replace(/^https?:\/\//, '')
-            .replace(/[^A-z0-9]+/g, '-')
-            .replace(/-+/g, '-')
-            .replace(/^[_\-]+/, '')
-            .replace(/[_\-]+$/, '');
-        name = '-' + name;
-    } else {
-        name = '';
-    }
-    name = 'screencapture' + name + '-' + Date.now() + '.png';
-
-    function onwriteend() {
-        // open the file that now contains the blob
-        window.open('filesystem:chrome-extension://' + chrome.i18n.getMessage('@@extension_id') + '/temporary/' + name);
-    }
-
-    function errorHandler() {
-        show('uh-oh');
-    }
-
-    // create a blob for writing to a file
-    window.webkitRequestFileSystem(window.TEMPORARY, size, function(fs){
-        fs.root.getFile(name, {create: true}, function(fileEntry) {
-            fileEntry.createWriter(function(fileWriter) {
-                fileWriter.onwriteend = onwriteend;
-                fileWriter.write(blob);
-            }, errorHandler);
-        }, errorHandler);
-    }, errorHandler);
+	// create a blob for writing to a file
+	window.webkitRequestFileSystem(window.TEMPORARY, size, function(fs){
+		fs.root.getFile(name, {create: true}, function(fileEntry) {
+			fileEntry.createWriter(function(fileWriter) {
+				fileWriter.onwriteend = onwriteend;
+				fileWriter.write(blob);
+			}, errorHandler);
+		}, errorHandler);
+	}, errorHandler);
 }
-
-//
-// start doing stuff immediately! - including error cases
-//
 
 chrome.tabs.getSelected(null, function(tab) {
 
-    if (testURLMatches(tab.url)) {
-        var loaded = false;
+	if (testURLMatches(tab.url)) {
+		var loaded = false;
 
-        chrome.tabs.executeScript(tab.id, {file: 'page.js'}, function() {
-            loaded = true;
-            show('loading');
-            sendScrollMessage(tab);
-        });
+		var data = {
+			targetWidth: 1280,
+			originalWidth: tab.width,
+			devicePixelRatio: window.devicePixelRatio
+		};
 
-        window.setTimeout(function() {
-            if (!loaded) {
-                show('uh-oh');
-            }
-        }, 1000);
-    } else {
-        show('invalid');
-    }
+		chrome.windows.update(chrome.windows.WINDOW_ID_CURRENT, {width: data.targetWidth});
+		// getting the tab again to get the new tab size.
+		chrome.tabs.get(tab.id, function(tab) {
+			data.totalWidth = tab.width,
+			data.totalHeight = tab.height,
+			capturePage(data);
+		});
+
+		window.setTimeout(function() {
+			if (!loaded) {
+				show('uh-oh');
+			}
+		}, 1000);
+	} else {
+		show('invalid');
+	}
 });
