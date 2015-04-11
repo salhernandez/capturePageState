@@ -26,7 +26,7 @@ function capturePage(data) {
 				var image = new Image();
 				var titleBarImage = new Image();
 				titleBarImage.onload = function () {
-					addtitleBar(ctx, titleBarImage, data);
+					addTitleBar(ctx, titleBarImage, data);
 				};
 				titleBarImage.src = data.titleBar.data;
 				image.onload = function() {
@@ -37,7 +37,7 @@ function capturePage(data) {
 			}
 		});
 
-	function addtitleBar(ctx, titleBarImage, data) {
+	function addTitleBar(ctx, titleBarImage, data) {
 		var totalWidth = data.totalWidth + 12;
 		var leftWidth = data.titleBar.leftWidth;
 		var offset = data.titleBar.offset;
@@ -88,7 +88,7 @@ function openPage(canvas, data) {
 	} else {
 		name = '';
 	}
-	name = 'screencapture' + name + '-' + Date.now() + '.png';
+	name = 'screenshot' + name + '-' + Date.now() + '.png';
 
 	function onwriteend() {
 		// open the file that now contains the blob
