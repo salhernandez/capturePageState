@@ -94,7 +94,6 @@ function openPage(canvas, data) {
 	// http://code.google.com/p/chromium/issues/detail?id=69227#c27
 
 	var dataURI = canvas.toDataURL();
-	var contentURL = '';
 	var byteString = atob(dataURI.split(',')[1]);
 	var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
 
@@ -106,7 +105,7 @@ function openPage(canvas, data) {
 
 	var blob = new Blob([ab], {type: mimeString});
 	var size = blob.size + (1024/2);
-	var name = contentURL.split('?')[0].split('#')[0];
+	var name = data.url.split('?')[0].split('#')[0];
 	if (name) {
 		name = name
 			.replace(/^https?:\/\//, '')
@@ -154,6 +153,7 @@ function openPage(canvas, data) {
 		})();
 
 		var data = {
+			url: tab.url,
 			targetWidth: 1280,
 			totalWidth: null,
 			totalHeight: null,
