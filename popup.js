@@ -2,41 +2,17 @@
 // Copyright (c) 2015 Jean-Martin Archer
 // Use of this source code is governed by the MIT License found in LICENSE
 
-//
-// URL Matching test - to verify we can talk to this URL
-//
-var matches = ['http://*/*', 'https://*/*', 'ftp://*/*', 'file://*/*'],
-	noMatches = [/^https?:\/\/chrome.google.com\/.*$/];
-function testURLMatches(url) {
-	// couldn't find a better way to tell if executeScript
-	// wouldn't work -- so just testing against known urls
-	// for now...
-	var r, i;
-	for (i=noMatches.length-1; i>=0; i--) {
-		if (noMatches[i].test(url)) {
-			return false;
-		}
-	}
-	for (i=matches.length-1; i>=0; i--) {
-		r = new RegExp('^' + matches[i].replace(/\*/g, '.*') + '$');
-		if (r.test(url)) {
-			return true;
-		}
-	}
-	return false;
-}
-
 var PIXEL_RATIO = (function () {
 	var ctx = document.createElement("canvas").getContext("2d"),
 		dpr = window.devicePixelRatio || 1,
 		bsr = ctx.webkitBackingStorePixelRatio ||
-			ctx.mozBackingStorePixelRatio ||
-			ctx.msBackingStorePixelRatio ||
-			ctx.oBackingStorePixelRatio ||
 			ctx.backingStorePixelRatio || 1;
 
 	return dpr / bsr;
 })();
+
+function $(id) { return document.getElementById(id); }
+function show(id) { $(id).style.display = 'block'; }
 
 function createHiDPICanvas(w, h, ratio) {
 	if (!ratio) { ratio = PIXEL_RATIO; }
@@ -50,8 +26,6 @@ function createHiDPICanvas(w, h, ratio) {
 }
 
 function capturePage(data) {
-	var screenshot = {};
-
 	var margins = {top: 15, bottom: 25, left: 25, right: 25};
 	var topBar = {height: 36};
 	var canvas = createHiDPICanvas(data.totalWidth + margins.left + margins.right, data.totalHeight + margins.top + margins.bottom + topBar.height);
@@ -73,7 +47,7 @@ function capturePage(data) {
 					ctx.rect(margins.left + shadowEdgeOffset, margins.top + shadowEdgeOffset, data.totalWidth - (shadowEdgeOffset * 2), data.totalHeight + topBar.height - shadowEdgeOffset);
 					ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
 					ctx.shadowBlur = 20 * PIXEL_RATIO;
-					ctx.shadowOffsetX = 0 * PIXEL_RATIO;
+					ctx.shadowOffsetX = 0;
 					ctx.shadowOffsetY = 5 * PIXEL_RATIO;
 					ctx.fill();
 					ctx.restore();
@@ -90,10 +64,6 @@ function capturePage(data) {
 				image.src = dataURI;
 			}
 		});
-}
-
-function max(nums) {
-	return Math.max.apply(Math, nums.filter(function(x) { return x; }));
 }
 
 function openPage(canvas, data) {
@@ -149,30 +119,24 @@ function openPage(canvas, data) {
 }
 
 chrome.tabs.getSelected(null, function(tab) {
+	var loaded = false;
+	var data = {
+		targetWidth: 1280,
+		originalWidth: tab.width,
+		devicePixelRatio: window.devicePixelRatio
+	};
 
-	if (testURLMatches(tab.url)) {
-		var loaded = false;
+	chrome.windows.update(chrome.windows.WINDOW_ID_CURRENT, {width: data.targetWidth});
+	// getting the tab again to get the new tab size.
+	chrome.tabs.get(tab.id, function(tab) {
+		data.totalWidth = tab.width;
+		data.totalHeight = tab.height;
+		capturePage(data);
+	});
 
-		var data = {
-			targetWidth: 1280,
-			originalWidth: tab.width,
-			devicePixelRatio: window.devicePixelRatio
-		};
-
-		chrome.windows.update(chrome.windows.WINDOW_ID_CURRENT, {width: data.targetWidth});
-		// getting the tab again to get the new tab size.
-		chrome.tabs.get(tab.id, function(tab) {
-			data.totalWidth = tab.width,
-			data.totalHeight = tab.height,
-			capturePage(data);
-		});
-
-		window.setTimeout(function() {
-			if (!loaded) {
-				show('uh-oh');
-			}
-		}, 1000);
-	} else {
-		show('invalid');
-	}
+	window.setTimeout(function() {
+		if (!loaded) {
+			show('uh-oh');
+		}
+	}, 1000);
 });
