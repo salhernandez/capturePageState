@@ -142,6 +142,8 @@ function openPage(canvas, data) {
 
 (function () {
 	chrome.tabs.getSelected(null, function(tab) {
+		// TODO-JMA enabled setZoom when Google Chrome 42 is released.
+		// chrome.tabs.setZoom(tab.id, 1.0);
 		var loaded = false;
 		var PIXEL_RATIO = (function () {
 			var ctx = document.createElement("canvas").getContext("2d"),
