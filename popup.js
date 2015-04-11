@@ -38,22 +38,52 @@ function capturePage(data) {
 		});
 
 	function addTitleBar(ctx, titleBarImage, data) {
-		var totalWidth = data.totalWidth + 12;
+		var totalBarWidth = data.totalWidth + 12;
 		var leftWidth = data.titleBar.leftWidth;
 		var offset = data.titleBar.offset;
+
+		var middleBar = {
+			sx: offset, sy: 0,
+			sw: 5, sh: leftWidth,
+			dx: data.margins.left + 5, dy: data.margins.top,
+			dw: totalBarWidth - 20, dh: leftWidth
+		};
+		var leftBar = {
+			sx: 0, sy: 0,
+			sw: offset, sh: leftWidth,
+			dx: data.margins.left, dy: data.margins.top,
+			dw: offset, dh: leftWidth
+		};
+		var rigthBar = {
+			sx: offset, sy: 0,
+			sw: offset, sh: leftWidth,
+			dx: totalBarWidth, dy: data.margins.top,
+			dw: offset, dh: leftWidth
+		};
+
 		addShadow(ctx, data);
-		ctx.drawImage(titleBarImage, offset, 0, 5, leftWidth, data.margins.left + 5, data.margins.top, totalWidth - 20, leftWidth); // middle
-		ctx.drawImage(titleBarImage, 0, 0, offset, leftWidth, data.margins.left, data.margins.top, offset, leftWidth); //leftSide
-		ctx.drawImage(titleBarImage, offset, 0, offset, leftWidth, totalWidth, data.margins.top, offset, leftWidth); //rightSide
+		drawBar(ctx, titleBarImage, middleBar);
+		drawBar(ctx, titleBarImage, leftBar);
+		drawBar(ctx, titleBarImage, rigthBar);
+	}
+
+	function drawBar(ctx, image, coords) {
+		ctx.drawImage(image, coords.sx, coords.sy, coords.sw, coords.sh, coords.dx, coords.dy, coords.dw, coords.dh);
 	}
 
 	function addShadow(ctx, data) {
 		ctx.save();
-		ctx.rect(data.margins.left + data.shadowEdgeOffset, data.margins.top + data.shadowEdgeOffset, data.totalWidth - (data.shadowEdgeOffset * 2), data.totalHeight + data.titleBar.height - data.shadowEdgeOffset);
-		ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
-		ctx.shadowBlur = 20 * data.pixelRatio;
-		ctx.shadowOffsetX = 0;
-		ctx.shadowOffsetY = 5 * data.pixelRatio;
+		var rect = {
+			x: data.margins.left + data.shadow.edgeOffset,
+			y: data.margins.top + data.shadow.edgeOffset,
+			w: data.totalWidth - (data.shadow.edgeOffset * 2),
+			h: data.totalHeight + data.titleBar.height - data.shadow.edgeOffset
+		};
+		ctx.rect(rect.x, rect.y, rect.w, rect.h);
+		ctx.shadowColor = data.shadow.color;
+		ctx.shadowBlur = data.shadow.blur;
+		ctx.shadowOffsetX = data.shadow.offsetX;
+		ctx.shadowOffsetY = data.shadow.offsetY;
 		ctx.fill();
 		ctx.restore();
 	}
@@ -131,7 +161,13 @@ function openPage(canvas, data) {
 			originalWidth: tab.width,
 			margins: {top: 15, bottom: 25, left: 25, right: 25},
 			titleBar: {height: 36, leftWidth: 60, offset: 70, data: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFMAAAAkCAYAAAD1lQZ5AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAArdJREFUeNrsmM9uElEUxj9grmSgYJWoWFpS3ftnQZG4aKMm6kJ9Ak30ATSpuqvLutSFvoALn0BdqImadqFIXfhnb5sRaNWgLQpEB4L3DKPpgty54BC6OF9yNvd+czL55c7lOwQsy4Krs7JmZU3JGgHLSz9lLcm6LesRLQTdjXlZD2QdY5DaGnF5PXT5ISBP5hl3gfV/Okcn8ypz8EWzBDPDHHxRhmDGmIMvigWZgX9imAyTYTJMFsMciox+Hwy0WogsvYb54R3E5zVnzd6TROPAIdSnjqAdCun3ajcR3XgOs5qH+F3s9No2jkY8h9r242gHenvNpuz3pLaIxUYBll1y1tIihWkzi1PRaRgBYyAwaZxs9/pQqFrFzvv3INZWu+7byb34dv4iWvG4d6/mdyRKtyB+Wd17hdOopK6hZezQerdKax03K3exbH/qur9PTGAucRmJ0OjwP3M6kSqQJNojT6DZ9DyRKpBOL7lHHvLqnEgVSBLtzVfuwNboN3CY9GmrQG4GGnlTUHqiGy+UIDcDJa+X6NNWgfyrFbuIp9I7dJh0R/rlNauv9HtpeOmO1FUv3oHBFOWSvne17HHiVvR7aXg/2pZ2v+UevFsjGgV9bO/zL3AIoeHDtMdS+l4ZlZT74Un9XjIqeWm/SGv3o6g0dJiUI/3yUo7U7qXhpRypq168A4NZz2SdHKlzKsmrEgVyypGevcITjtdLJ2UgnxTeJ5g85B06zLZhOIFcBdQJ7RcuOV5lL3kPUiBXAe2E9utaU5CQnhuJK04wV4EkjxjAFNTXBPRvnCzkEXn/FsbXL53QvGs36gcPo57N9T5Orj+D+eOlHCfL7h05hkbsKGqjJ/oaJx/XFrDQyKNod0bdcZHEjJnD6ejM1honWfyvEcNkmAyTxTAZJsNkMUyGyTAZJss3/RFgAH76+ziLxwJqAAAAAElFTkSuQmCC'},
-			shadowEdgeOffset: 3
+			shadow: {
+				color: 'rgba(0, 0, 0, 0.5)',
+				blur: 20 * PIXEL_RATIO,
+				offsetX: 0,
+				offsetY: 5 * PIXEL_RATIO,
+				edgeOffset: 3
+			}
 		};
 
 		chrome.windows.update(chrome.windows.WINDOW_ID_CURRENT, {width: data.targetWidth});
