@@ -172,13 +172,14 @@ function openPage(canvas, data) {
 			}
 		};
 
-		chrome.windows.update(chrome.windows.WINDOW_ID_CURRENT, {width: data.targetWidth});
-		// getting the tab again to get the new tab size.
-		chrome.tabs.get(tab.id, function(tab) {
-			data.totalWidth = tab.width;
-			data.totalHeight = tab.height;
-			capturePage(data);
+		chrome.windows.update(chrome.windows.WINDOW_ID_CURRENT, {width: data.targetWidth}, function() {
+			chrome.tabs.get(tab.id, function(tab) {
+				data.totalWidth = tab.width;
+				data.totalHeight = tab.height;
+				capturePage(data);
+			});
 		});
+		// getting the tab again to get the new tab size.
 
 		window.setTimeout(function() {
 			if (!loaded) {
