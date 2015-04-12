@@ -1,7 +1,8 @@
 Change Log:
 
 ```
-0.0.5 - TBD
+0.0.6 - 2015-04-xx -
+0.0.5 - 2015-04-12 - More OS X-like shadows.
 0.0.4 - 2015-04-12 - HiDPI title bar. Popup cleanup.
 0.0.3 - 2015-04-11 - Screenshot file name matching the url. Minor Refactoring.
 0.0.2 — 2015-04-11 — Better HighDPI support. Code cleanup. Altered the icon.
