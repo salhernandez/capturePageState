@@ -38,7 +38,7 @@ function capturePage(cfg) {
 						h: cfg.totalHeight
 					};
 					ctx.drawImage(image, coords.x, coords.y, coords.w, coords.h);
-					openPage(canvas, cfg);
+					openScreenshotPage(canvas, cfg);
 				};
 				image.src = dataURI;
 			}
@@ -96,23 +96,47 @@ function capturePage(cfg) {
 	}
 }
 
-function openPage(canvas, cfg) {
+function dataUrlToBlob(dataURI) {
 	// standard dataURI can be too big, let's blob instead
 	// http://code.google.com/p/chromium/issues/detail?id=69227#c27
-
-	var dataURI = canvas.toDataURL();
 	var byteString = atob(dataURI.split(',')[1]);
 	var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
-
 	var ab = new ArrayBuffer(byteString.length);
 	var ia = new Uint8Array(ab);
 	for (var i = 0; i < byteString.length; i++) {
 		ia[i] = byteString.charCodeAt(i);
 	}
+	return new Blob([ab], {type: mimeString});
+}
 
-	var blob = new Blob([ab], {type: mimeString});
-	var size = blob.size + (1024/2);
-	var name = cfg.url.split('?')[0].split('#')[0];
+function openScreenshotPage(canvas, cfg) {
+	createFile(cfg, dataUrlToBlob(canvas.toDataURL()));
+
+	function onwriteend() {
+		// open the file that now contains the blob
+		window.open('filesystem:chrome-extension://' + chrome.i18n.getMessage('@@extension_id') + '/temporary/' + cfg.filename);
+		chrome.windows.update(chrome.windows.WINDOW_ID_CURRENT, {width: cfg.originalWidth});
+	}
+
+	function errorHandler() {
+		show('uh-oh');
+	}
+
+	function createFile(cfg, blob) {
+		var size = blob.size + (1024/2);
+		window.webkitRequestFileSystem(window.TEMPORARY, size, function (fs) {
+			fs.root.getFile(cfg.filename, {create: true}, function (fileEntry) {
+				fileEntry.createWriter(function (fileWriter) {
+					fileWriter.onwriteend = onwriteend;
+					fileWriter.write(blob);
+				}, errorHandler);
+			}, errorHandler);
+		}, errorHandler);
+	}
+}
+
+function generateFilename(url) {
+	var name = url.split('?')[0].split('#')[0];
 	if (name) {
 		name = name
 			.replace(/^https?:\/\//, '')
@@ -126,26 +150,7 @@ function openPage(canvas, cfg) {
 		name = '';
 	}
 	name = 'screenshot' + name + '-' + Date.now() + '.png';
-
-	function onwriteend() {
-		// open the file that now contains the blob
-		window.open('filesystem:chrome-extension://' + chrome.i18n.getMessage('@@extension_id') + '/temporary/' + name);
-		chrome.windows.update(chrome.windows.WINDOW_ID_CURRENT, {width: cfg.originalWidth});
-	}
-
-	function errorHandler() {
-		show('uh-oh');
-	}
-
-	// create a blob for writing to a file
-	window.webkitRequestFileSystem(window.TEMPORARY, size, function(fs){
-		fs.root.getFile(name, {create: true}, function(fileEntry) {
-			fileEntry.createWriter(function(fileWriter) {
-				fileWriter.onwriteend = onwriteend;
-				fileWriter.write(blob);
-			}, errorHandler);
-		}, errorHandler);
-	}, errorHandler);
+	return name;
 }
 
 (function () {
@@ -164,6 +169,7 @@ function openPage(canvas, cfg) {
 
 		var cfg = {
 			url: tab.url,
+			filename: generateFilename(tab.url),
 			targetWidth: 1280,
 			totalWidth: null,
 			totalHeight: null,
