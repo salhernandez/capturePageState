@@ -21,10 +21,10 @@ You can get the extension on the [Chrome Store](https://chrome.google.com/websto
 ### Development
 
 1. Clone this repo
-2. Open up Chrome and go to the `chrome://extensions/` page (Window → Extensions)
-3. Enable developer mode (if it’s not already)
-4. Click on “Load unpacked extension…”
-5. Select the folder for this app
+2. Open up Chrome and go to the `chrome://extensions/` page (Window → Extensions).
+3. Enable developer mode (if it’s not already).
+4. Click on “Load unpacked extension…”.
+5. Select the folder for this app.
 
 ### Keyboard Shortcut
 
