@@ -1,6 +1,6 @@
 # Standardized Screenshot
 
-Very opinionated screenshot capture extension for Google Chrome.
+A very opinionated screen capture extension for Google Chrome.
 
 It will:
 
