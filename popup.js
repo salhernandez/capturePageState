@@ -119,7 +119,8 @@ function openPage(canvas, cfg) {
 			.replace(/[^A-z0-9]+/g, '-')
 			.replace(/-+/g, '-')
 			.replace(/^[_\-]+/, '')
-			.replace(/[_\-]+$/, '');
+			.replace(/[_\-]+$/, '')
+			.slice(0, 64);
 		name = '-' + name;
 	} else {
 		name = '';
