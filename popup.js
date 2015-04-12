@@ -45,15 +45,15 @@ function capturePage(cfg) {
 		});
 
 	function addTitleBar(ctx, titleBarImage, cfg) {
-		var rightDx = cfg.totalWidth + 7;
 		var leftWidth = cfg.titleBar.leftWidth;
+		var rightDx = cfg.margins.left + cfg.totalWidth - cfg.titleBar.rightWidth;
 		var offset = cfg.titleBar.offset;
 
 		var middleBar = {
 			sx: offset, sy: 0,
 			sw: 5, sh: leftWidth * 2,
 			dx: cfg.margins.left + 5, dy: cfg.margins.top,
-			dw: rightDx - 20, dh: leftWidth
+			dw: rightDx - cfg.margins.left, dh: leftWidth
 		};
 		var leftBar = {
 			sx: 0, sy: 0,
@@ -170,21 +170,22 @@ function openPage(canvas, cfg) {
 			originalWidth: tab.width,
 			margins: {
 				top: 15,
-				bottom: 25,
-				left: 25,
-				right: 25
+				bottom: 70,
+				left: 40,
+				right: 40
 			},
 			titleBar: {
 				height: 36,
 				leftWidth: 120,
+				rightWidth: 18,
 				offset: 130,
 				data: 'data:image/png;base64,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'
 			},
 			shadow: {
 				color: 'rgba(0, 0, 0, 0.5)',
-				blur: 20 * PIXEL_RATIO,
+				blur: 100,
 				offsetX: 0,
-				offsetY: 5 * PIXEL_RATIO,
+				offsetY: 40,
 				edgeOffset: 3 // shrinks the box generating the shadow so it doesn't show in the rounded the titleBar corners
 			}
 		};
