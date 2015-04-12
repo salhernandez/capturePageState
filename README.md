@@ -4,7 +4,7 @@ Very opinionated screenshot capture extension for Google Chrome.
 
 It will:
 
-- Resize the browser window to be 1280px wide.
+- Resize the browser window to be `1280px` wide.
 - Capture the current tab.
 - Add a OS X-ish title bar.
 - Add drop shadow to it.
@@ -20,11 +20,11 @@ You can get the extension on the [Chrome Store](https://chrome.google.com/websto
 
 ### Development
 
-1. Clone this repo
-2. Open up Chrome and go to the `chrome://extensions/` page (Window → Extensions).
-3. Enable developer mode (if it’s not already).
-4. Click on “Load unpacked extension…”.
-5. Select the folder for this app.
+1. Clone this repository.
+1. Open up Chrome and go to the `chrome://extensions/` page (Window → Extensions).
+1. Enable developer mode (if it's not already).
+1. Click on `Load unpacked extension`.
+1. Select the folder for this extension.
 
 ### Keyboard Shortcut
 
