@@ -16,7 +16,7 @@ It will:
 Forked and heavily mutated from [Full Page Screen Capture](https://github.com/mrcoles/full-page-screen-capture-chrome-extension).
 
 ### Install
-You can get the extension on the [Chrome Store](https://chrome.google.com/webstore/detail/standardized-screenshot/pabdhaakclnechgfhmnhkcbmjobeoope).
+You can get the extension on the [Chrome Store](http://goo.gl/TeyAJl).
 
 ### Development
 
