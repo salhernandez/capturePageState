@@ -61,7 +61,7 @@ function capturePage(cfg) {
 			dx: cfg.margins.left, dy: cfg.margins.top,
 			dw: offset, dh: leftWidth
 		};
-		var rigthBar = {
+		var rightBar = {
 			sx: offset, sy: 0,
 			sw: offset * 2, sh: leftWidth * 2,
 			dx: rightDx, dy: cfg.margins.top,
@@ -71,7 +71,7 @@ function capturePage(cfg) {
 		addShadow(ctx, cfg);
 		drawBar(ctx, titleBarImage, middleBar);
 		drawBar(ctx, titleBarImage, leftBar);
-		drawBar(ctx, titleBarImage, rigthBar);
+		drawBar(ctx, titleBarImage, rightBar);
 	}
 
 	function drawBar(ctx, image, coords) {
