@@ -5,19 +5,20 @@
 function $(id) { return document.getElementById(id); }
 function show(id) { $(id).style.display = 'block'; }
 
-function capturePage(data) {
-	function createHiDPICanvas(w, h, ratio) {
+function capturePage(cfg) {
+	function createHiDPICanvas(cfg) {
 		var canvas = document.createElement("canvas");
-		canvas.width = w * ratio;
-		canvas.height = h * ratio;
+		var w = cfg.totalWidth + cfg.margins.left + cfg.margins.right;
+		var h = cfg.totalHeight + cfg.margins.top + cfg.margins.bottom + cfg.titleBar.height;
+		canvas.width = w * cfg.pixelRatio;
+		canvas.height = h * cfg.pixelRatio;
 		canvas.style.width = w + "px";
 		canvas.style.height = h + "px";
-		canvas.getContext("2d").setTransform(ratio, 0, 0, ratio, 0, 0);
+		canvas.getContext("2d").setTransform(cfg.pixelRatio, 0, 0, cfg.pixelRatio, 0, 0);
 		return canvas;
 	}
 
-	var margins = data.margins;
-	var canvas = createHiDPICanvas(data.totalWidth + margins.left + margins.right, data.totalHeight + margins.top + margins.bottom + data.titleBar.height, data.pixelRatio);
+	var canvas = createHiDPICanvas(cfg);
 	var ctx = canvas.getContext('2d');
 
 	chrome.tabs.captureVisibleTab(
@@ -26,48 +27,48 @@ function capturePage(data) {
 				var image = new Image();
 				var titleBarImage = new Image();
 				titleBarImage.onload = function () {
-					addTitleBar(ctx, titleBarImage, data);
+					addTitleBar(ctx, titleBarImage, cfg);
 				};
-				titleBarImage.src = data.titleBar.data;
+				titleBarImage.src = cfg.titleBar.data;
 				image.onload = function() {
 					var coords = {
-						x: margins.left,
-						y: margins.top + data.titleBar.height,
-						w: data.totalWidth,
-						h: data.totalHeight
+						x: cfg.margins.left,
+						y: cfg.margins.top + cfg.titleBar.height,
+						w: cfg.totalWidth,
+						h: cfg.totalHeight
 					};
 					ctx.drawImage(image, coords.x, coords.y, coords.w, coords.h);
-					openPage(canvas, data);
+					openPage(canvas, cfg);
 				};
 				image.src = dataURI;
 			}
 		});
 
-	function addTitleBar(ctx, titleBarImage, data) {
-		var rightDx = data.totalWidth + 7;
-		var leftWidth = data.titleBar.leftWidth;
-		var offset = data.titleBar.offset;
+	function addTitleBar(ctx, titleBarImage, cfg) {
+		var rightDx = cfg.totalWidth + 7;
+		var leftWidth = cfg.titleBar.leftWidth;
+		var offset = cfg.titleBar.offset;
 
 		var middleBar = {
 			sx: offset, sy: 0,
 			sw: 5, sh: leftWidth * 2,
-			dx: data.margins.left + 5, dy: data.margins.top,
+			dx: cfg.margins.left + 5, dy: cfg.margins.top,
 			dw: rightDx - 20, dh: leftWidth
 		};
 		var leftBar = {
 			sx: 0, sy: 0,
 			sw: offset * 2, sh: leftWidth * 2,
-			dx: data.margins.left, dy: data.margins.top,
+			dx: cfg.margins.left, dy: cfg.margins.top,
 			dw: offset, dh: leftWidth
 		};
 		var rigthBar = {
 			sx: offset, sy: 0,
 			sw: offset * 2, sh: leftWidth * 2,
-			dx: rightDx, dy: data.margins.top,
+			dx: rightDx, dy: cfg.margins.top,
 			dw: offset, dh: leftWidth
 		};
 
-		addShadow(ctx, data);
+		addShadow(ctx, cfg);
 		drawBar(ctx, titleBarImage, middleBar);
 		drawBar(ctx, titleBarImage, leftBar);
 		drawBar(ctx, titleBarImage, rigthBar);
@@ -77,25 +78,25 @@ function capturePage(data) {
 		ctx.drawImage(image, coords.sx, coords.sy, coords.sw, coords.sh, coords.dx, coords.dy, coords.dw, coords.dh);
 	}
 
-	function addShadow(ctx, data) {
+	function addShadow(ctx, cfg) {
 		ctx.save();
 		var rect = {
-			x: data.margins.left + data.shadow.edgeOffset,
-			y: data.margins.top + data.shadow.edgeOffset,
-			w: data.totalWidth - (data.shadow.edgeOffset * 2),
-			h: data.totalHeight + data.titleBar.height - data.shadow.edgeOffset
+			x: cfg.margins.left + cfg.shadow.edgeOffset,
+			y: cfg.margins.top + cfg.shadow.edgeOffset,
+			w: cfg.totalWidth - (cfg.shadow.edgeOffset * 2),
+			h: cfg.totalHeight + cfg.titleBar.height - cfg.shadow.edgeOffset
 		};
 		ctx.rect(rect.x, rect.y, rect.w, rect.h);
-		ctx.shadowColor = data.shadow.color;
-		ctx.shadowBlur = data.shadow.blur;
-		ctx.shadowOffsetX = data.shadow.offsetX;
-		ctx.shadowOffsetY = data.shadow.offsetY;
+		ctx.shadowColor = cfg.shadow.color;
+		ctx.shadowBlur = cfg.shadow.blur;
+		ctx.shadowOffsetX = cfg.shadow.offsetX;
+		ctx.shadowOffsetY = cfg.shadow.offsetY;
 		ctx.fill();
 		ctx.restore();
 	}
 }
 
-function openPage(canvas, data) {
+function openPage(canvas, cfg) {
 	// standard dataURI can be too big, let's blob instead
 	// http://code.google.com/p/chromium/issues/detail?id=69227#c27
 
@@ -111,7 +112,7 @@ function openPage(canvas, data) {
 
 	var blob = new Blob([ab], {type: mimeString});
 	var size = blob.size + (1024/2);
-	var name = data.url.split('?')[0].split('#')[0];
+	var name = cfg.url.split('?')[0].split('#')[0];
 	if (name) {
 		name = name
 			.replace(/^https?:\/\//, '')
@@ -128,7 +129,7 @@ function openPage(canvas, data) {
 	function onwriteend() {
 		// open the file that now contains the blob
 		window.open('filesystem:chrome-extension://' + chrome.i18n.getMessage('@@extension_id') + '/temporary/' + name);
-		chrome.windows.update(chrome.windows.WINDOW_ID_CURRENT, {width: data.originalWidth});
+		chrome.windows.update(chrome.windows.WINDOW_ID_CURRENT, {width: cfg.originalWidth});
 	}
 
 	function errorHandler() {
@@ -160,7 +161,7 @@ function openPage(canvas, data) {
 			return dpr / bsr;
 		})();
 
-		var data = {
+		var cfg = {
 			url: tab.url,
 			targetWidth: 1280,
 			totalWidth: null,
@@ -177,7 +178,8 @@ function openPage(canvas, data) {
 				height: 36,
 				leftWidth: 120,
 				offset: 130,
-				data: 'data:image/png;base64,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'},
+				data: 'data:image/png;base64,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'
+			},
 			shadow: {
 				color: 'rgba(0, 0, 0, 0.5)',
 				blur: 20 * PIXEL_RATIO,
@@ -187,11 +189,11 @@ function openPage(canvas, data) {
 			}
 		};
 
-		chrome.windows.update(chrome.windows.WINDOW_ID_CURRENT, {width: data.targetWidth}, function() {
+		chrome.windows.update(chrome.windows.WINDOW_ID_CURRENT, {width: cfg.targetWidth}, function() {
 			chrome.tabs.get(tab.id, function(tab) {
-				data.totalWidth = tab.width;
-				data.totalHeight = tab.height;
-				capturePage(data);
+				cfg.totalWidth = tab.width;
+				cfg.totalHeight = tab.height;
+				capturePage(cfg);
 			});
 		});
 		// getting the tab again to get the new tab size.
