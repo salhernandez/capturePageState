@@ -1,12 +1,24 @@
-Standardized Screenshot
-========================
+# Standardized Screenshot
 
-Forked from https://github.com/mrcoles/full-page-screen-capture-chrome-extension
+Very opinionated screenshot capture extension for Google Chrome.
 
-### To Install
-You can get the extension here: https://chrome.google.com/webstore/detail/standardized-screenshot/pabdhaakclnechgfhmnhkcbmjobeoope
+It will:
 
-Or, for development:
+- Resize the browser window to be 1280px wide.
+- Capture the current tab.
+- Add a OS X-ish title bar.
+- Add drop shadow to it.
+- Display the result in a new tab.
+- Resize the browser window to the original size.
+
+![image](screenshots/example.png)
+
+Forked and heavily mutated from [Full Page Screen Capture](https://github.com/mrcoles/full-page-screen-capture-chrome-extension).
+
+### Install
+You can get the extension on the [Chrome Store](https://chrome.google.com/webstore/detail/standardized-screenshot/pabdhaakclnechgfhmnhkcbmjobeoope).
+
+### Development
 
 1. Clone this repo
 2. Open up Chrome and go to the extensions page (Window → Extensions)
