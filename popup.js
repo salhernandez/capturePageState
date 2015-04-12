@@ -153,19 +153,20 @@ function generateFilename(url) {
 	return name;
 }
 
+function getPixelRatio() {
+	var ctx = document.createElement("canvas").getContext("2d"),
+		dpr = window.devicePixelRatio || 1,
+		bsr = ctx.webkitBackingStorePixelRatio ||
+			ctx.backingStorePixelRatio || 1;
+	return dpr / bsr;
+}
+
 (function () {
 	chrome.tabs.getSelected(null, function(tab) {
 		// TODO-JMA enabled setZoom when Google Chrome 42 is released.
 		// chrome.tabs.setZoom(tab.id, 1.0);
 		var loaded = false;
-		var PIXEL_RATIO = (function () {
-			var ctx = document.createElement("canvas").getContext("2d"),
-				dpr = window.devicePixelRatio || 1,
-				bsr = ctx.webkitBackingStorePixelRatio ||
-					ctx.backingStorePixelRatio || 1;
-
-			return dpr / bsr;
-		})();
+		var PIXEL_RATIO = getPixelRatio();
 
 		var cfg = {
 			url: tab.url,
@@ -190,9 +191,9 @@ function generateFilename(url) {
 			},
 			shadow: {
 				color: 'rgba(0, 0, 0, 0.5)',
-				blur: 100,
+				blur: 50 * PIXEL_RATIO,
 				offsetX: 0,
-				offsetY: 40,
+				offsetY: 20 * PIXEL_RATIO,
 				edgeOffset: 3 // shrinks the box generating the shadow so it doesn't show in the rounded the titleBar corners
 			}
 		};
