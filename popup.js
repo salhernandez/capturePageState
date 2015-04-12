@@ -44,26 +44,26 @@ function capturePage(data) {
 		});
 
 	function addTitleBar(ctx, titleBarImage, data) {
-		var totalBarWidth = data.totalWidth + 12;
+		var rightDx = data.totalWidth + 7;
 		var leftWidth = data.titleBar.leftWidth;
 		var offset = data.titleBar.offset;
 
 		var middleBar = {
 			sx: offset, sy: 0,
-			sw: 5, sh: leftWidth,
+			sw: 5, sh: leftWidth * 2,
 			dx: data.margins.left + 5, dy: data.margins.top,
-			dw: totalBarWidth - 20, dh: leftWidth
+			dw: rightDx - 20, dh: leftWidth
 		};
 		var leftBar = {
 			sx: 0, sy: 0,
-			sw: offset, sh: leftWidth,
+			sw: offset * 2, sh: leftWidth * 2,
 			dx: data.margins.left, dy: data.margins.top,
 			dw: offset, dh: leftWidth
 		};
 		var rigthBar = {
 			sx: offset, sy: 0,
-			sw: offset, sh: leftWidth,
-			dx: totalBarWidth, dy: data.margins.top,
+			sw: offset * 2, sh: leftWidth * 2,
+			dx: rightDx, dy: data.margins.top,
 			dw: offset, dh: leftWidth
 		};
 
@@ -175,9 +175,9 @@ function openPage(canvas, data) {
 			},
 			titleBar: {
 				height: 36,
-				leftWidth: 60,
-				offset: 70,
-				data: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFMAAAAkCAYAAAD1lQZ5AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAArdJREFUeNrsmM9uElEUxj9grmSgYJWoWFpS3ftnQZG4aKMm6kJ9Ak30ATSpuqvLutSFvoALn0BdqImadqFIXfhnb5sRaNWgLQpEB4L3DKPpgty54BC6OF9yNvd+czL55c7lOwQsy4Krs7JmZU3JGgHLSz9lLcm6LesRLQTdjXlZD2QdY5DaGnF5PXT5ISBP5hl3gfV/Okcn8ypz8EWzBDPDHHxRhmDGmIMvigWZgX9imAyTYTJMFsMciox+Hwy0WogsvYb54R3E5zVnzd6TROPAIdSnjqAdCun3ajcR3XgOs5qH+F3s9No2jkY8h9r242gHenvNpuz3pLaIxUYBll1y1tIihWkzi1PRaRgBYyAwaZxs9/pQqFrFzvv3INZWu+7byb34dv4iWvG4d6/mdyRKtyB+Wd17hdOopK6hZezQerdKax03K3exbH/qur9PTGAucRmJ0OjwP3M6kSqQJNojT6DZ9DyRKpBOL7lHHvLqnEgVSBLtzVfuwNboN3CY9GmrQG4GGnlTUHqiGy+UIDcDJa+X6NNWgfyrFbuIp9I7dJh0R/rlNauv9HtpeOmO1FUv3oHBFOWSvne17HHiVvR7aXg/2pZ2v+UevFsjGgV9bO/zL3AIoeHDtMdS+l4ZlZT74Un9XjIqeWm/SGv3o6g0dJiUI/3yUo7U7qXhpRypq168A4NZz2SdHKlzKsmrEgVyypGevcITjtdLJ2UgnxTeJ5g85B06zLZhOIFcBdQJ7RcuOV5lL3kPUiBXAe2E9utaU5CQnhuJK04wV4EkjxjAFNTXBPRvnCzkEXn/FsbXL53QvGs36gcPo57N9T5Orj+D+eOlHCfL7h05hkbsKGqjJ/oaJx/XFrDQyKNod0bdcZHEjJnD6ejM1honWfyvEcNkmAyTxTAZJsNkMUyGyTAZJss3/RFgAH76+ziLxwJqAAAAAElFTkSuQmCC'},
+				leftWidth: 120,
+				offset: 130,
+				data: 'data:image/png;base64,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'},
 			shadow: {
 				color: 'rgba(0, 0, 0, 0.5)',
 				blur: 20 * PIXEL_RATIO,
