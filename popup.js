@@ -163,7 +163,8 @@ function generateFilename(url) {
 		var cfg = {
 			url: tab.url,
 			filename: generateFilename(tab.url),
-			targetWidth: 1280,
+			targetWidth: 1366,
+			targetHeight: null,
 			totalWidth: null,
 			totalHeight: null,
 			pixelRatio: PIXEL_RATIO,

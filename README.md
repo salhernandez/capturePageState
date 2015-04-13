@@ -4,7 +4,7 @@ A very opinionated screen capture extension for Google Chrome.
 
 It will:
 
-- Resize the browser window to be `1280px` wide.
+- Resize the browser window to be `1366px` wide.
 - Capture the current tab.
 - Add a OS X-ish title bar.
 - Add drop shadow to it.
