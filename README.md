@@ -11,6 +11,8 @@ It will:
 - Display the result in a new tab.
 - Resize the browser window to the original size.
 
+Note that the screenshot will be HiDPI-ish (pixel ratio of 2) for print purposes.
+
 ![image](screenshots/example.png)
 
 Forked and heavily mutated from [Full Page Screen Capture](https://github.com/mrcoles/full-page-screen-capture-chrome-extension).

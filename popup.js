@@ -153,20 +153,12 @@ function generateFilename(url) {
 	return name;
 }
 
-function getPixelRatio() {
-	var ctx = document.createElement("canvas").getContext("2d"),
-		dpr = window.devicePixelRatio || 1,
-		bsr = ctx.webkitBackingStorePixelRatio ||
-			ctx.backingStorePixelRatio || 1;
-	return dpr / bsr;
-}
-
 (function () {
 	chrome.tabs.getSelected(null, function(tab) {
 		// TODO-JMA enabled setZoom when Google Chrome 42 is released.
 		// chrome.tabs.setZoom(tab.id, 1.0);
 		var loaded = false;
-		var PIXEL_RATIO = getPixelRatio();
+		var PIXEL_RATIO = 2;
 
 		var cfg = {
 			url: tab.url,
