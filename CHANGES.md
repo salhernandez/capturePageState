@@ -1,7 +1,6 @@
 Change Log:
 
 ```
-1.0.1 - 2015-04-13 - HiDPI regardless of the display used.
 1.0.0 - 2015-04-12 - Release.
 0.0.6 - 2015-04-12 - Properly scale Non-HiDPI shadows. Refactoring.
 0.0.5 - 2015-04-12 - More OS X-like shadows.
