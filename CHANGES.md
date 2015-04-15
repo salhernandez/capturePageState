@@ -1,6 +1,7 @@
 Change Log:
 
 ```
+1.0.3 - 2015-04-15 - New icon.
 1.0.2 - 2015-04-14 - Grey title bar buttons.
 1.0.1 - 2015-04-13 - Resize resolution to 1366px.
 1.0.0 - 2015-04-12 - Release.
