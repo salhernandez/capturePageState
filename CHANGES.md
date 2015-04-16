@@ -1,6 +1,7 @@
 Change Log:
 
 ```
+1.0.4 - 2015-04-15 - Resetting zoom before taking the screenshot.
 1.0.3 - 2015-04-15 - New icon.
 1.0.2 - 2015-04-14 - Grey title bar buttons.
 1.0.1 - 2015-04-13 - Resize resolution to 1366px.
