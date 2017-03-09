@@ -1,8 +1,8 @@
 {
-  "name": "Standardized Screenshot",
-  "version": "1.0.5",
+  "name": "Slushman Screenshot",
+  "version": "1.0.0",
   "manifest_version": 2,
-  "description": "Takes standardized screenshots.",
+  "description": "Takes screenshots at particular sizes.",
   "browser_action": {
     "default_icon": "icon.png",
     "default_popup": "popup.html"
