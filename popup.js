@@ -170,7 +170,7 @@ function getPixelRatio() {
 		var cfg = {
 			url: tab.url,
 			filename: generateFilename(tab.url),
-			targetWidth: 1366,
+			targetWidth: 1200,
 			targetHeight: null,
 			totalWidth: null,
 			totalHeight: null,
