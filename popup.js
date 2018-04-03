@@ -115,7 +115,7 @@ function openScreenshotPage(canvas, cfg) {
 	function onwriteend() {
 		// open the file that now contains the blob
 		window.open('filesystem:chrome-extension://' + chrome.i18n.getMessage('@@extension_id') + '/temporary/' + cfg.filename);
-		chrome.windows.update(chrome.windows.WINDOW_ID_CURRENT, {width: cfg.originalWidth});
+		// chrome.windows.update(chrome.windows.WINDOW_ID_CURRENT, {width: cfg.originalWidth});
 	}
 
 	function errorHandler() {
@@ -161,7 +161,7 @@ function getPixelRatio() {
 	return dpr / bsr;
 }
 
-(function () {
+var runPopup = function(opt_width, opt_height) {
 	chrome.tabs.getSelected(null, function(tab) {
 		chrome.tabs.setZoom(tab.id, 1.0);
 		var loaded = false;
@@ -171,7 +171,7 @@ function getPixelRatio() {
 			url: tab.url,
 			filename: generateFilename(tab.url),
 			targetWidth: 1200,
-			targetHeight: null,
+			targetHeight: 800,
 			totalWidth: null,
 			totalHeight: null,
 			pixelRatio: PIXEL_RATIO,
@@ -198,19 +198,22 @@ function getPixelRatio() {
 			}
 		};
 
-		chrome.windows.update(chrome.windows.WINDOW_ID_CURRENT, {width: cfg.targetWidth}, function() {
+    var width = opt_width || cfg.targetWidth;
+    var height = opt_height || cfg.targetHeight;
+
+		chrome.windows.update(chrome.windows.WINDOW_ID_CURRENT, {width: width, height: height}, function() {
 			chrome.tabs.get(tab.id, function(tab) {
 				cfg.totalWidth = tab.width;
 				cfg.totalHeight = tab.height;
 				capturePage(cfg);
 			});
 		});
-		// getting the tab again to get the new tab size.
-
-		window.setTimeout(function() {
-			if (!loaded) {
-				show('uh-oh');
-			}
-		}, 1000);
 	});
+};
+
+(function () {
+  var desktopButtonEl = document.getElementById('buttonDesktop');
+  desktopButtonEl.onclick = function() { runPopup(1200, 800) };
+  var mobileButtonEl = document.getElementById('buttonMobile');
+  mobileButtonEl.onclick = function() { runPopup(375, 667) };
 })();
