@@ -25,15 +25,10 @@ function capturePage(cfg) {
 		null, {format: 'png', quality: 100}, function(dataURI) {
 			if (dataURI) {
 				var image = new Image();
-				var titleBarImage = new Image();
-				titleBarImage.onload = function () {
-					addTitleBar(ctx, titleBarImage, cfg);
-				};
-				titleBarImage.src = cfg.titleBar.data;
 				image.onload = function() {
 					var coords = {
 						x: cfg.margins.left,
-						y: cfg.margins.top + cfg.titleBar.height,
+						y: cfg.margins.top,
 						w: cfg.totalWidth,
 						h: cfg.totalHeight
 					};
@@ -113,8 +108,14 @@ function openScreenshotPage(canvas, cfg) {
 	createFile(cfg, dataUrlToBlob(canvas.toDataURL()));
 
 	function onwriteend() {
+
+    chrome.downloads.download({
+      url: 'filesystem:chrome-extension://' + chrome.i18n.getMessage('@@extension_id') + '/temporary/' + cfg.filename
+      // filename: "test.png" // Optional
+    });
+
 		// open the file that now contains the blob
-		window.open('filesystem:chrome-extension://' + chrome.i18n.getMessage('@@extension_id') + '/temporary/' + cfg.filename);
+		// window.open('filesystem:chrome-extension://' + chrome.i18n.getMessage('@@extension_id') + '/temporary/' + cfg.filename);
 		// chrome.windows.update(chrome.windows.WINDOW_ID_CURRENT, {width: cfg.originalWidth});
 	}
 
@@ -161,7 +162,7 @@ function getPixelRatio() {
 	return dpr / bsr;
 }
 
-var runPopup = function(opt_width, opt_height) {
+var runPopup = function() {
 	chrome.tabs.getSelected(null, function(tab) {
 		chrome.tabs.setZoom(tab.id, 1.0);
 		var loaded = false;
@@ -198,8 +199,8 @@ var runPopup = function(opt_width, opt_height) {
 			}
 		};
 
-    var width = opt_width || cfg.targetWidth;
-    var height = opt_height || cfg.targetHeight;
+    var width = cfg.targetWidth;
+    var height = cfg.targetHeight;
 
 		chrome.windows.update(chrome.windows.WINDOW_ID_CURRENT, {width: width, height: height}, function() {
 			chrome.tabs.get(tab.id, function(tab) {
@@ -213,7 +214,7 @@ var runPopup = function(opt_width, opt_height) {
 
 (function () {
   var desktopButtonEl = document.getElementById('buttonDesktop');
-  desktopButtonEl.onclick = function() { runPopup(1200, 800) };
+  desktopButtonEl.onclick = function() { runPopup() };
   var mobileButtonEl = document.getElementById('buttonMobile');
-  mobileButtonEl.onclick = function() { runPopup(375, 667) };
+  mobileButtonEl.onclick = function() { runPopup() };
 })();
