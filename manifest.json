@@ -1,16 +1,23 @@
 {
 	"manifest_version": 2,
-
 	"name": "Capture Page State",
 	"description": "",
 	"version": "0.0.1",
 	"author": "Salvador Hernandez",
-	"web_accessible_resources": ["/images/checkMark.png"],
+	"devtools_page": "devtools.html",
+	"web_accessible_resources": [
+		"/images/checkMark.png"
+	],
 	"browser_action": {
 		"default_popup": "popup.html"
-	  },
-	  "permissions": [ "activeTab" ,
-						"storage",
-						"downloads"
-					]
+	},
+	"permissions": [
+		"activeTab",
+		"storage",
+		"downloads",
+		"http://*/*",
+		"https://*/*",
+		"background",
+		"tabs"
+	]
 }
