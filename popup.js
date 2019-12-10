@@ -216,5 +216,11 @@ var runPopup = function() {
   var desktopButtonEl = document.getElementById('buttonDesktop');
   desktopButtonEl.onclick = function() { runPopup() };
   var mobileButtonEl = document.getElementById('buttonMobile');
-  mobileButtonEl.onclick = function() { runPopup() };
+  mobileButtonEl.onclick = function() {
+	chrome.devtools.network.getHAR(
+		function(harLog) {
+			alert(harLog.entries.length);
+		});               
+  } 
+	//   runPopup() 
 })();
