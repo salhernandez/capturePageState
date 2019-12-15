@@ -212,7 +212,9 @@ var runPopup = function() {
 	});
 };
 
+
 (function () {
+	
   var desktopButtonEl = document.getElementById('buttonDesktop');
   var captureButton = document.getElementById('whatToCapture');
 
@@ -226,6 +228,18 @@ var runPopup = function() {
 	}
 
 	if(checkboxConsoleLog.checked){
+
+		// get active tab and send message
+		chrome.tabs.query({
+			active: true,
+			lastFocusedWindow: true
+		}, function(tabs) {
+			var tab = tabs[0];
+			
+			chrome.tabs.sendMessage(tab.id,{}, (data) => {
+				alert(data)
+			});
+		});
 	}
 
 	if(checkboxHARLog.checked){
