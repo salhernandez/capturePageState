@@ -215,16 +215,21 @@ var runPopup = function() {
 (function () {
   var desktopButtonEl = document.getElementById('buttonDesktop');
   var captureButton = document.getElementById('whatToCapture');
-
-
-  desktopButtonEl.onclick = function() { runPopup() };
-
+  
   captureButton.onclick = function(event) {
 	let checkboxScreenshot = document.getElementById('checkboxScreenshot');
 	let checkboxConsoleLog = document.getElementById('checkboxConsoleLog');
 	let checkboxHARLog = document.getElementById('checkboxHARLog');
 
-	console.log(checkboxScreenshot.checked, checkboxConsoleLog.checked, checkboxHARLog.checked)
+	if(checkboxScreenshot.checked){
+		runPopup()
+	}
+
+	if(checkboxConsoleLog.checked){
+	}
+
+	if(checkboxConsoleLog.checked){
+	}
+
   }
-	//   runPopup() 
 })();
