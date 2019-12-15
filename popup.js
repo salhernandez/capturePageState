@@ -214,13 +214,22 @@ var runPopup = function() {
 
 (function () {
   var desktopButtonEl = document.getElementById('buttonDesktop');
-  desktopButtonEl.onclick = function() { runPopup() };
-  var mobileButtonEl = document.getElementById('buttonMobile');
-  mobileButtonEl.onclick = function() {
-	chrome.devtools.network.getHAR(
-		function(harLog) {
-			alert(harLog.entries.length);
-		});               
-  } 
-	//   runPopup() 
+  var captureButton = document.getElementById('whatToCapture');
+
+  captureButton.onclick = function(event) {
+	let checkboxScreenshot = document.getElementById('checkboxScreenshot');
+	let checkboxConsoleLog = document.getElementById('checkboxConsoleLog');
+	let checkboxHARLog = document.getElementById('checkboxHARLog');
+
+	if(checkboxScreenshot.checked){
+		runPopup()
+	}
+
+	if(checkboxConsoleLog.checked){
+	}
+
+	if(checkboxHARLog.checked){
+	}
+
+  }
 })();

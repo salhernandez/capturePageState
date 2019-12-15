@@ -9,7 +9,9 @@
 		"/images/checkMark.png"
 	],
 	"background": {
-		"scripts": ["runOnLoad.js"],
+		"scripts": [
+			"runOnLoad.js"
+		],
 		"persistent": true
 	},
 	"browser_action": {
@@ -19,6 +21,9 @@
 		"activeTab",
 		"storage",
 		"downloads",
+		"notifications",
+		"activeTab",
+		"<all_urls>",
 		"http://*/*",
 		"https://*/*",
 		"background",
