@@ -243,6 +243,11 @@ var runPopup = function() {
 	}
 
 	if(checkboxHARLog.checked){
+		// send message
+		let message = {content: "Changed by page"};
+		chrome.extension.sendMessage(message , function(a){
+			// alert("JSON.stringify(a));
+		});
 	}
 
   }
