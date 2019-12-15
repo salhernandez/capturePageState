@@ -215,7 +215,7 @@ var runPopup = function() {
 (function () {
   var desktopButtonEl = document.getElementById('buttonDesktop');
   var captureButton = document.getElementById('whatToCapture');
-  
+
   captureButton.onclick = function(event) {
 	let checkboxScreenshot = document.getElementById('checkboxScreenshot');
 	let checkboxConsoleLog = document.getElementById('checkboxConsoleLog');
@@ -228,7 +228,7 @@ var runPopup = function() {
 	if(checkboxConsoleLog.checked){
 	}
 
-	if(checkboxConsoleLog.checked){
+	if(checkboxHARLog.checked){
 	}
 
   }
