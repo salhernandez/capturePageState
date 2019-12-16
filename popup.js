@@ -22,10 +22,10 @@ function capturePage(cfg) {
 	var ctx = canvas.getContext('2d');
 
 	chrome.tabs.captureVisibleTab(
-		null, {format: 'png', quality: 100}, function(dataURI) {
+		null, { format: 'png', quality: 100 }, function (dataURI) {
 			if (dataURI) {
 				var image = new Image();
-				image.onload = function() {
+				image.onload = function () {
 					var coords = {
 						x: cfg.margins.left,
 						y: cfg.margins.top,
@@ -101,7 +101,7 @@ function dataUrlToBlob(dataURI) {
 	for (var i = 0; i < byteString.length; i++) {
 		ia[i] = byteString.charCodeAt(i);
 	}
-	return new Blob([ab], {type: mimeString});
+	return new Blob([ab], { type: mimeString });
 }
 
 function openScreenshotPage(canvas, cfg) {
@@ -109,10 +109,10 @@ function openScreenshotPage(canvas, cfg) {
 
 	function onwriteend() {
 
-    chrome.downloads.download({
-      url: 'filesystem:chrome-extension://' + chrome.i18n.getMessage('@@extension_id') + '/temporary/' + cfg.filename
-      // filename: "test.png" // Optional
-    });
+		chrome.downloads.download({
+			url: 'filesystem:chrome-extension://' + chrome.i18n.getMessage('@@extension_id') + '/temporary/' + cfg.filename
+			// filename: "test.png" // Optional
+		});
 
 		// open the file that now contains the blob
 		// window.open('filesystem:chrome-extension://' + chrome.i18n.getMessage('@@extension_id') + '/temporary/' + cfg.filename);
@@ -124,9 +124,9 @@ function openScreenshotPage(canvas, cfg) {
 	}
 
 	function createFile(cfg, blob) {
-		var size = blob.size + (1024/2);
+		var size = blob.size + (1024 / 2);
 		window.webkitRequestFileSystem(window.TEMPORARY, size, function (fs) {
-			fs.root.getFile(cfg.filename, {create: true}, function (fileEntry) {
+			fs.root.getFile(cfg.filename, { create: true }, function (fileEntry) {
 				fileEntry.createWriter(function (fileWriter) {
 					fileWriter.onwriteend = onwriteend;
 					fileWriter.write(blob);
@@ -162,8 +162,8 @@ function getPixelRatio() {
 	return dpr / bsr;
 }
 
-var runPopup = function() {
-	chrome.tabs.getSelected(null, function(tab) {
+var runPopup = function () {
+	chrome.tabs.getSelected(null, function (tab) {
 		chrome.tabs.setZoom(tab.id, 1.0);
 		var loaded = false;
 		var PIXEL_RATIO = getPixelRatio();
@@ -199,11 +199,11 @@ var runPopup = function() {
 			}
 		};
 
-    var width = cfg.targetWidth;
-    var height = cfg.targetHeight;
+		var width = cfg.targetWidth;
+		var height = cfg.targetHeight;
 
-		chrome.windows.update(chrome.windows.WINDOW_ID_CURRENT, {width: width, height: height}, function() {
-			chrome.tabs.get(tab.id, function(tab) {
+		chrome.windows.update(chrome.windows.WINDOW_ID_CURRENT, { width: width, height: height }, function () {
+			chrome.tabs.get(tab.id, function (tab) {
 				cfg.totalWidth = tab.width;
 				cfg.totalHeight = tab.height;
 				capturePage(cfg);
@@ -214,41 +214,50 @@ var runPopup = function() {
 
 
 (function () {
-	
-  var desktopButtonEl = document.getElementById('buttonDesktop');
-  var captureButton = document.getElementById('whatToCapture');
 
-  captureButton.onclick = function(event) {
-	let checkboxScreenshot = document.getElementById('checkboxScreenshot');
-	let checkboxConsoleLog = document.getElementById('checkboxConsoleLog');
-	let checkboxHARLog = document.getElementById('checkboxHARLog');
+	var desktopButtonEl = document.getElementById('buttonDesktop');
+	var captureButton = document.getElementById('whatToCapture');
 
-	if(checkboxScreenshot.checked){
-		runPopup()
-	}
+	captureButton.onclick = function (event) {
+		let checkboxScreenshot = document.getElementById('checkboxScreenshot');
+		let checkboxConsoleLog = document.getElementById('checkboxConsoleLog');
+		let checkboxHARLog = document.getElementById('checkboxHARLog');
 
-	if(checkboxConsoleLog.checked){
+		if (checkboxScreenshot.checked) {
+			runPopup()
+		}
 
-		// get active tab and send message
-		chrome.tabs.query({
-			active: true,
-			lastFocusedWindow: true
-		}, function(tabs) {
-			var tab = tabs[0];
-			
-			chrome.tabs.sendMessage(tab.id,{}, (data) => {
-				alert(data)
+		if (checkboxConsoleLog.checked) {
+
+			// get active tab and send message
+			chrome.tabs.query({
+				active: true,
+				lastFocusedWindow: true
+			}, function (tabs) {
+				var tab = tabs[0];
+
+				chrome.tabs.sendMessage(tab.id, {}, (data) => {
+					alert(data)
+				});
 			});
-		});
-	}
+		}
 
-	if(checkboxHARLog.checked){
-		// send message
-		let message = {content: "Changed by page"};
-		chrome.extension.sendMessage(message , function(a){
-			// alert("JSON.stringify(a));
-		});
-	}
+		if (checkboxHARLog.checked) {
 
-  }
+			// check if devtools is open
+			chrome.extension.sendMessage({ action: "getDevToolsStatus" }, function (response) {
+				if (!response.data) {
+					alert("DevTools needs to be open to get HAR logs")
+				} else {
+
+					// sends message to devtools(through background.js)
+					let message = { content: "Changed by page" };
+					chrome.extension.sendMessage(message, function (a) {
+						// alert(JSON.stringify(a));
+					});
+				}
+			});
+		}
+
+	}
 })();

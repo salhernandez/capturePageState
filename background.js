@@ -5,10 +5,9 @@
 // chrome.tabs.*
 // chrome.extension.*
 
+// When devtools opens, this gets connected
 chrome.extension.onConnect.addListener(function (port) {
-
     var extensionListener = function (message, sender, sendResponse) {
-
         if(message.tabId && message.content) {
                 //Evaluate script in inspectedPage
                 if(message.action === 'code') {
@@ -17,7 +16,7 @@ chrome.extension.onConnect.addListener(function (port) {
                 //Attach script to inspectedPage
                 } else if(message.action === 'script') {
                     chrome.tabs.executeScript(message.tabId, {file: message.content});
-
+                    
                 //Pass message to inspectedPage
                 } else {
                     chrome.tabs.sendMessage(message.tabId, message, sendResponse);
@@ -47,16 +46,16 @@ chrome.extension.onConnect.addListener(function (port) {
 
 });
 
-chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-    return true;
-});
 
-
-// lets you know if devtools is open or not, this will be good when trying to get the har file
+// is devtools open
 var openCount = 0;
+var isDevToolsOpen = false;
+
+// Always return true for async connections for chrome.runtime.onConnect.addListener
 chrome.runtime.onConnect.addListener(function (port) {
     if (port.name == "devtools-page") {
       if (openCount == 0) {
+        isDevToolsOpen = true
         // alert("DevTools window opening.");
       }
       openCount++;
@@ -64,8 +63,28 @@ chrome.runtime.onConnect.addListener(function (port) {
       port.onDisconnect.addListener(function(port) {
           openCount--;
           if (openCount == 0) {
+            isDevToolsOpen = false
             // alert("Last DevTools window closing.");
           }
       });
     }
+    return true;
+});
+
+
+// messages from popup.js
+// Always return true for async connections for chrome.runtime.onConnect.addListener
+chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+    let info = {}
+    info.request = JSON.stringify(request)
+    info.sender = JSON.stringify(sender)
+    info.sendResponse = JSON.stringify(sendResponse)
+
+    // alert(isDevToolsOpen)
+
+    if(request.action === "getDevToolsStatus"){
+        // response needs to be in JSON format
+        sendResponse({data: isDevToolsOpen})
+    }
+    return true;
 });

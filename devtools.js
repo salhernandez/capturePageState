@@ -3,7 +3,7 @@
 // chrome.extension.*
 
 // Create a tab in the devtools area
-chrome.devtools.panels.create("Capture Page State", "icon48.png","panel.html", (panel) => {});
+// chrome.devtools.panels.create("Capture Page State", "icon48.png","panel.html", (panel) => {});
 
 
 // most likely this will run when devtools opens
@@ -19,6 +19,7 @@ var backgroundPageConnection = chrome.runtime.connect({
         name: "Another Communication" //Given a Name
     });
 
+    console.log("we here yo")
     // Listen to messages from the background page
     port.onMessage.addListener(function (message) {
       chrome.devtools.network.getHAR(
