@@ -10,7 +10,8 @@
 	],
 	"background": {
 		"scripts": [
-			"runOnLoad.js"
+			"runOnLoad.js",
+			"background.js"
 		],
 		"persistent": true
 	},
