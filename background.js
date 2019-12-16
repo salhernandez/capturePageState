@@ -25,7 +25,11 @@ chrome.extension.onConnect.addListener(function (port) {
         // This accepts messages from the inspectedPage and 
         // sends them to the panel
         } else {
-            port.postMessage(message);
+            alert("passing stuff to devtools", JSON.stringify(message))
+
+            if(message.action === "downloadHARlog"){
+                port.postMessage(message);
+            }
         }
         sendResponse(message);
     }

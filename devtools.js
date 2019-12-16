@@ -19,7 +19,6 @@ var backgroundPageConnection = chrome.runtime.connect({
         name: "Another Communication" //Given a Name
     });
 
-    console.log("we here yo")
     // Listen to messages from the background page
     port.onMessage.addListener(function (message) {
       chrome.devtools.network.getHAR(

@@ -251,10 +251,10 @@ var runPopup = function () {
 				} else {
 
 					// sends message to devtools(through background.js)
-					let message = { content: "Changed by page" };
+					let message = { action: "downloadHARlog"};
 					chrome.extension.sendMessage(message, function (a) {
 						// alert(JSON.stringify(a));
-					});
+					});					
 				}
 			});
 		}
