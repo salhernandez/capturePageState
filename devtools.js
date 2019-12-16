@@ -21,20 +21,23 @@ var backgroundPageConnection = chrome.runtime.connect({
 
     // Listen to messages from the background page
     port.onMessage.addListener(function (message) {
-      chrome.devtools.network.getHAR(
-        (harLog) => {
-            let updatedHarLog = {};
-            updatedHarLog.log = harLog;
+        if (message.action === "downloadHARlog") {
+            chrome.devtools.network.getHAR(
+                (harLog) => {
+                    let updatedHarLog = {};
+                    updatedHarLog.log = harLog;
 
-            let harBLOB = new Blob([JSON.stringify(updatedHarLog)]);
+                    let harBLOB = new Blob([JSON.stringify(updatedHarLog)]);
 
-            let url = URL.createObjectURL(harBLOB);
+                    let url = URL.createObjectURL(harBLOB);
 
-            chrome.downloads.download({
-                url: url
-            });
+                    chrome.downloads.download({
+                        url: url
+                    });
+                    
+                }
+            );
         }
-    );
     });
 
 }());
