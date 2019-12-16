@@ -2,10 +2,6 @@
 // chrome.devtools.*
 // chrome.extension.*
 
-// Create a tab in the devtools area
-// chrome.devtools.panels.create("Capture Page State", "icon48.png","panel.html", (panel) => {});
-
-
 // most likely this will run when devtools opens
 var backgroundPageConnection = chrome.runtime.connect({
     name: "devtools-page"
