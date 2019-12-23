@@ -10,13 +10,13 @@
 	],
 	"background": {
 		"scripts": [
-			"runOnLoad.js",
 			"background.js"
 		],
 		"persistent": true
 	},
 	"browser_action": {
-		"default_popup": "popup.html"
+		"default_popup": "popup.html",
+		"default_title": "Capture Page State"
 	},
 	"permissions": [
 		"activeTab",
@@ -28,6 +28,7 @@
 		"http://*/*",
 		"https://*/*",
 		"background",
-		"tabs"
+		"tabs",
+		"debugger"
 	]
 }
