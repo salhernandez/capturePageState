@@ -57,7 +57,7 @@ function onEvent(debuggeeId, message, params) {
     if (gTabId != debuggeeId.tabId)
         return;
 
-    logData.push({debuggeeId: debuggeeId, params: params})
+    logData.push(params)
 }
 
 function onAttach(tabId) {
