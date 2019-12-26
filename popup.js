@@ -222,23 +222,25 @@ var runPopup = function () {
 		let checkboxScreenshot = document.getElementById('checkboxScreenshot');
 		let checkboxConsoleLog = document.getElementById('checkboxConsoleLog');
 		let checkboxHARLog = document.getElementById('checkboxHARLog');
-		
+
 		if (checkboxScreenshot.checked) {
 			runPopup()
 		}
 
 		if (checkboxConsoleLog.checked) {
-
 			// get active tab and send message
 			chrome.tabs.query({
 				active: true,
 				lastFocusedWindow: true
 			}, function (tabs) {
 				var tab = tabs[0];
+				let message = { action: "getConsoleLog", tabId: tab.id };
 
-				chrome.tabs.sendMessage(tab.id, {}, (data) => {
-					alert(data)
+				console.log(JSON.stringify(message))
+				chrome.extension.sendMessage(message, function (a) {
+					// alert(JSON.stringify(a));
 				});
+
 			});
 		}
 

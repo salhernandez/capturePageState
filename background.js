@@ -5,6 +5,8 @@
 // chrome.tabs.*
 // chrome.extension.*
 
+var version = "1.0";
+
 // When devtools opens, this gets connected
 chrome.extension.onConnect.addListener(function (port) {
     var extensionListener = function (message, sender, sendResponse) {
@@ -25,8 +27,6 @@ chrome.extension.onConnect.addListener(function (port) {
         // This accepts messages from the inspectedPage and 
         // sends them to the panel
         } else {
-            // alert("passing stuff to devtools", JSON.stringify(message))
-
             if(message.action === "downloadHARlog"){
                 port.postMessage(message);
             }
@@ -49,6 +49,47 @@ chrome.extension.onConnect.addListener(function (port) {
     // });
 
 });
+
+var gTabId;
+var logData = [];
+
+function onEvent(debuggeeId, message, params) {
+    if (gTabId != debuggeeId.tabId)
+        return;
+
+    logData.push(params)
+}
+
+function onAttach(tabId) {
+    gTabId = tabId;
+    if (chrome.runtime.lastError) {
+      alert(chrome.runtime.lastError.message);
+      return;
+    }
+
+    // use Log.enable and go from there
+    chrome.debugger.sendCommand({ tabId: tabId }, "Log.enable");
+    chrome.debugger.onEvent.addListener(onEvent);
+
+    setTimeout(() => {
+        let harBLOB = new Blob([JSON.stringify(logData)]);
+
+        let url = URL.createObjectURL(harBLOB);
+
+        chrome.downloads.download({
+            url: url
+        });
+
+        // cleanup after downloading file
+        chrome.debugger.sendCommand({ tabId: tabId }, "Log.disable");
+        chrome.debugger.detach({ tabId: tabId });
+        gTabId = undefined;
+        logData = [];
+
+        
+    }, 1000);
+    
+  }
 
 
 // is devtools open
@@ -75,7 +116,6 @@ chrome.runtime.onConnect.addListener(function (port) {
     return true;
 });
 
-
 // messages from popup.js
 // Always return true for async connections for chrome.runtime.onConnect.addListener
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
@@ -89,6 +129,10 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     if(request.action === "getDevToolsStatus"){
         // response needs to be in JSON format
         sendResponse({data: isDevToolsOpen})
+    } else if (request.action === "getConsoleLog"){
+
+        chrome.debugger.attach({tabId:request.tabId}, version,
+            onAttach.bind(null, request.tabId));
     }
     return true;
 });
