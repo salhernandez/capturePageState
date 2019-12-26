@@ -1,22 +1,6 @@
-# Standardized Screenshot
+# Capture Page State
 
-A very opinionated screen capture extension for Google Chrome.
-
-It will:
-
-- Resize the browser window to be `1366px` wide.
-- Capture the current tab.
-- Add a OS X-ish title bar.
-- Add drop shadow to it.
-- Display the result in a new tab.
-- Resize the browser window to the original size.
-
-![image](screenshots/example.png)
-
-Forked and heavily mutated from [Full Page Screen Capture](https://github.com/mrcoles/full-page-screen-capture-chrome-extension).
-
-### Install
-You can get the extension on the [Chrome Store](http://goo.gl/TeyAJl).
+Get HAR logs, console logs, and screenshot to provide as much context as possible when reporting issues to developers.
 
 ### Development
 
@@ -29,3 +13,6 @@ You can get the extension on the [Chrome Store](http://goo.gl/TeyAJl).
 ### Keyboard Shortcut
 
 Go to the bottom of the `chrome://extensions/` page, click on `Keyboard shortcuts` and add the shortcut of your choice.
+
+### Credits
+Icon made by Pixel perfect from www.flaticon.com
