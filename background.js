@@ -10,32 +10,13 @@ var version = "1.0";
 // When devtools opens, this gets connected
 chrome.extension.onConnect.addListener(function (port) {
     var extensionListener = function (message, sender, sendResponse) {
-        if(message.tabId && message.content) {
-                //Evaluate script in inspectedPage
-                if(message.action === 'code') {
-                    chrome.tabs.executeScript(message.tabId, {code: message.content});
 
-                //Attach script to inspectedPage
-                } else if(message.action === 'script') {
-                    chrome.tabs.executeScript(message.tabId, {file: message.content});
-                    
-                //Pass message to inspectedPage
-                } else {
-                    chrome.tabs.sendMessage(message.tabId, message, sendResponse);
-                }
-
-        // This accepts messages from the inspectedPage and 
-        // sends them to the panel
+        if (message.action === "downloadHARlog") {
+            port.postMessage(message);
         } else {
-            if(message.action === "downloadHARlog"){
-                port.postMessage(message);
-            }
+            sendResponse(message);
         }
-        sendResponse(message);
     }
-
-
-    
 
     // Listens to messages sent from the panel
     chrome.extension.onMessage.addListener(extensionListener);
@@ -43,11 +24,6 @@ chrome.extension.onConnect.addListener(function (port) {
     port.onDisconnect.addListener(function(port) {
         chrome.extension.onMessage.removeListener(extensionListener);
     });
-
-    // port.onMessage.addListener(function (message) {
-    //     port.postMessage(message);
-    // });
-
 });
 
 var gTabId;
@@ -63,7 +39,6 @@ function onEvent(debuggeeId, message, params) {
 function onAttach(tabId) {
     gTabId = tabId;
     if (chrome.runtime.lastError) {
-      alert(chrome.runtime.lastError.message);
       return;
     }
 
@@ -85,7 +60,6 @@ function onAttach(tabId) {
         chrome.debugger.detach({ tabId: tabId });
         gTabId = undefined;
         logData = [];
-
         
     }, 1000);
     
@@ -109,7 +83,6 @@ chrome.runtime.onConnect.addListener(function (port) {
           openCount--;
           if (openCount == 0) {
             isDevToolsOpen = false
-            // alert("Last DevTools window closing.");
           }
       });
     }
@@ -123,8 +96,6 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     info.request = JSON.stringify(request)
     info.sender = JSON.stringify(sender)
     info.sendResponse = JSON.stringify(sendResponse)
-
-    // alert(isDevToolsOpen)
 
     if(request.action === "getDevToolsStatus"){
         // response needs to be in JSON format
