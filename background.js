@@ -50,14 +50,45 @@ chrome.extension.onConnect.addListener(function (port) {
 
 });
 
+var gTabId;
+var logData = [];
+
+function onEvent(debuggeeId, message, params) {
+    if (gTabId != debuggeeId.tabId)
+        return;
+
+    logData.push({debuggeeId: debuggeeId, params: params})
+}
+
 function onAttach(tabId) {
+    gTabId = tabId;
     if (chrome.runtime.lastError) {
       alert(chrome.runtime.lastError.message);
       return;
     }
-  
-    chrome.windows.create(
-        {url: "headers.html?" + tabId, type: "popup", width: 800, height: 600});
+
+    // use Log.enable and go from there
+    chrome.debugger.sendCommand({ tabId: tabId }, "Log.enable");
+    chrome.debugger.onEvent.addListener(onEvent);
+
+    setTimeout(() => {
+        let harBLOB = new Blob([JSON.stringify(logData)]);
+
+        let url = URL.createObjectURL(harBLOB);
+
+        chrome.downloads.download({
+            url: url
+        });
+
+        // cleanup after downloading file
+        chrome.debugger.sendCommand({ tabId: tabId }, "Log.disable");
+        chrome.debugger.detach({ tabId: tabId });
+        gTabId = undefined;
+        logData = [];
+
+        
+    }, 1000);
+    
   }
 
 
