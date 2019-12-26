@@ -214,8 +214,6 @@ var runPopup = function () {
 
 
 (function () {
-
-	var desktopButtonEl = document.getElementById('buttonDesktop');
 	var captureButton = document.getElementById('whatToCapture');
 
 	captureButton.onclick = function (event) {
