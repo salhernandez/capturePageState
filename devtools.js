@@ -21,6 +21,8 @@ var backgroundPageConnection = chrome.runtime.connect({
             chrome.devtools.network.getHAR(
                 (harLog) => {
                     let updatedHarLog = {};
+
+                    // this makes it readable by Chrome Dev Tools
                     updatedHarLog.log = harLog;
 
                     let harBLOB = new Blob([JSON.stringify(updatedHarLog)]);
