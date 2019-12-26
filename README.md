@@ -7,7 +7,7 @@ Get HAR logs, console logs, and screenshot to provide as much context as possibl
 **You need to have Chrome Dev Tools open for HAR log only**.
 
 ## Usage Instructions
-This Chrome Extension is not published to the Chrome Web Store, you need to install it in developer mode. You can find those instructions [here](#keyboard-shortcut)
+This Chrome Extension is not published to the Chrome Web Store, you need to install it in developer mode. You can find those instructions [here](#development)
 
 1. Click on Extension Icon
 2. Select what you want to capture
