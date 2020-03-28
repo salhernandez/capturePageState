@@ -99,10 +99,7 @@ function captureScreen (sendResponse) {
 
 function createEvidence (event) {
     // disable button
-    var createEvidenceAction = document.getElementById('createEvidenceAction');
-    createEvidenceAction.value = 'Collecting';
-    console.log('createEvidenceAction.value', createEvidenceAction.value);
-    createEvidenceAction.className = 'cta-button disabled';
+    document.getElementById('createEvidenceAction').className = 'cta-button disabled';
 
     let evidence = {
         title: document.getElementById('title').value,
@@ -148,14 +145,22 @@ function createEvidence (event) {
     });
 }
 
+function loadEvidence (evidence) {
+    chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+        chrome.tabs.sendMessage(tabs[0].id, {action: 'LoadData', evidence: evidence}, function(response) {
+            console.log(response);
+        });
+    });
+}
 
 function downloadAndLoadEvidence (event) {
+    // disable button
+    document.getElementById('loadEvidenceAction').className = 'cta-button disabled';
     finalSignedURL = document.getElementById('signedUrl').value;
     console.log('finalSignedURL', finalSignedURL);
     evidence = download_from_s3(finalSignedURL);
-    // load_evidence(evidence);
+    loadEvidence(evidence);
 }
-
 
 (function () {
     // report issue
@@ -176,7 +181,7 @@ function downloadAndLoadEvidence (event) {
     var loadEvidenceAction = document.getElementById('loadEvidenceAction');
     loadEvidenceAction.disabled = true;
     loadEvidenceAction.className = 'cta-button disabled';
-    loadEvidenceAction.addEventListener('click', downloadAndLoadEvidence);
+    // loadEvidenceAction.addEventListener('click', downloadAndLoadEvidence);
 
     // mandatory signedUrl
     var signedUrl = document.getElementById('signedUrl');
@@ -192,9 +197,26 @@ function downloadAndLoadEvidence (event) {
         console.log('finalSignedURL', finalSignedURL);
         navigator.clipboard.writeText(finalSignedURL).then(function () {
             var copySignedURL = document.getElementById('copySignedURL');
-            copySignedURL.innerHTML = 'Copied SignedURL with the Evidence data to the clipboard!';
+            copySignedURL.innerHTML = 'Copied URL with the Evidence data to the clipboard!';
             copySignedURL.className = 'done';
         });
     });
 
+	loadEvidenceAction.addEventListener('click', function (event) {
+		// var file = document.getElementById("file").files[0];
+		// var reader = new FileReader();
+		// reader.onload = function(e){
+		// 	console.log(JSON.parse(e.target.result));
+		// 	evidence = e.target.result;
+        // document.getElementById('loadEvidenceAction').className = 'cta-button disabled';
+        finalSignedURL = document.getElementById('signedUrl').value;
+        evidence = download_from_s3(finalSignedURL);
+		chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+			chrome.tabs.sendMessage(tabs[0].id, {action: 'LoadData', evidence: evidence}, function(response) {
+				console.log(response);
+			});
+		});
+		// }
+		// evidence = reader.readAsText(file);
+	});
 })();
