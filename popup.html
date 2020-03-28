@@ -64,18 +64,75 @@
       border-top: 12px dotted #000;
       height: 9px;
     }
+
+    .popup-box {
+      height: 200px;
+      width: 200px;
+    }
+
+    .popup-split {
+      margin: 10px;
+      padding: 10px;
+    }
+
+    .split-bar {
+      border-bottom: 1px solid #4a4a4a;
+    }
+
+    .cta-button {
+      color: #0071e0;
+      padding: 8px;
+      font-size: 12px;
+      border-radius: 4px;
+      margin: 16px;
+      cursor: pointer;
+    }
+
+    .disabled {
+      opacity: 0.7;
+    }
+
+    .text-field {
+      margin: 6px 0;
+    }
+
+    .mandatory {
+      color: red;
+    }
+
+    .hide {
+      display: none;
+      color: #0071e0;
+      cursor: pointer;
+    }
+
+    .done {
+      color: #4CAF50;
+    }
+
   </style>
 
   <script src="https://sdk.amazonaws.com/js/aws-sdk-2.283.1.min.js"></script>
 </head>
 
 <body>
-  <div>  
-      <input type="submit" id="createEvidenceAction" value="Collect Evidence">
-  </div>
+  <div class="popup-box">
+    <div class="popup-split split-bar">
+      <h3>Report an issue?</h3>
+      <label for="title">Give the evidence a title<span class="mandatory">*</span></label>
+      <textarea class="text-field" type="text" id="title" value="" placeholder="Enter title"></textarea>
+      <button class="cta-button" type="submit" id="createEvidenceAction">Collect Evidence</button>
+      <div class="hide" id="copySignedURL">
+        Click to copy SignedURL with the Evidence data
+      </div>
+    </div>
 
-  <div>  
-      <input type="submit" id="loadEvidenceAction" value="Load Evidence">
+    <div class="popup-split">
+      <h3>Debug an issue?</h3>
+      <label for="signedUrl">Paste signed URL<span class="mandatory">*</span></label>
+      <textarea class="text-field" type="text" id="signedUrl" value="" placeholder="Signed URL"></textarea>
+      <button class="cta-button" type="submit" id="loadEvidenceAction">Load Evidence</button>
+    </div>
   </div>
   <script src="popup.js"></script>
 </body>

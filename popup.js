@@ -2,9 +2,9 @@
 // Copyright (c) 2015 Jean-Martin Archer
 // Use of this source code is governed by the MIT License found in LICENSE
 
-var bucketName = "fyle-hackathon";
-var bucketRegion = "ap-south-1";
-var IdentityPoolId = "ap-south-1:cedc3d2e-5667-42df-a43b-c9569f6bc687";
+var bucketName = 'fyle-hackathon';
+var bucketRegion = 'ap-south-1';
+var IdentityPoolId = 'ap-south-1:cedc3d2e-5667-42df-a43b-c9569f6bc687';
 var finalSignedURL = '';
 
 // for upload json to s3 and download from signed url 
@@ -16,7 +16,7 @@ AWS.config.update({
 });
 
 var s3 = new AWS.S3({
-  apiVersion: "2006-03-01",
+  apiVersion: '2006-03-01',
   params: { Bucket: bucketName }
 });
 
@@ -24,7 +24,7 @@ function upload_to_s3 (evidence) {
 
   var json_str = JSON.stringify(evidence);
   var blob = new Blob([json_str], {
-    type: "application/json"
+    type: 'application/json'
   });
   var fileName = 'evidence' + (new Date()).getTime() + '.json';
 
@@ -55,16 +55,16 @@ function upload_to_s3 (evidence) {
           return url;
         },
         function(err) {
-          return alert("There was an error uploading your evidence. <br/> please try after sometime", err.message);
+          return alert('There was an error uploading your evidence. <br/> please try after sometime', err.message);
         }
     );
 }
 
 function download_from_s3 (signed_url) {
   fetch(signed_url, {
-      method: "GET",
+      method: 'GET',
       headers: {
-        "Content-Type": "application/json"
+        'Content-Type': 'application/json'
       }
     })
     .then(function(response) {
@@ -98,7 +98,14 @@ function captureScreen (sendResponse) {
 };
 
 function createEvidence (event) {
+    // disable button
+    var createEvidenceAction = document.getElementById('createEvidenceAction');
+    createEvidenceAction.value = 'Collecting';
+    console.log('createEvidenceAction.value', createEvidenceAction.value);
+    createEvidenceAction.className = 'cta-button disabled';
+
     let evidence = {
+        title: document.getElementById('title').value,
         url: '',
         local_storage: {},
         system_info: {},
@@ -110,12 +117,12 @@ function createEvidence (event) {
     chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
         evidence.url = tabs[0].url;
         // listener in content.js
-        chrome.tabs.sendMessage(tabs[0].id, {action: "getBrowserData"}, function(response) {
+        chrome.tabs.sendMessage(tabs[0].id, {action: 'getBrowserData'}, function(response) {
             evidence.local_storage = response.local_storage;
             evidence.system_info = response.browser_data;
 
             // listener in background.js
-            chrome.extension.sendMessage({tabId:tabs[0].id, action: "getConsoleLog"}, function (response) {
+            chrome.extension.sendMessage({tabId:tabs[0].id, action: 'getConsoleLog'}, function (response) {
                 console.log('getConsoleLog response', response);
                 evidence.log_data = response;
 
@@ -125,6 +132,14 @@ function createEvidence (event) {
 
                     upload_to_s3(evidence).then(function (signed_url) {
                         finalSignedURL = signed_url;
+                        // clear form
+                        document.getElementById('title').value = '';
+                        var createEvidenceAction = document.getElementById('createEvidenceAction');
+                        createEvidenceAction.value = 'Collect Evidence';
+
+                        // show copySignedURL
+                        var copySignedURL = document.getElementById('copySignedURL');
+                        copySignedURL.style.display = 'block';
                         return download_from_s3(signed_url);
                     });
                 });
@@ -135,15 +150,51 @@ function createEvidence (event) {
 
 
 function downloadAndLoadEvidence (event) {
+    finalSignedURL = document.getElementById('signedUrl').value;
+    console.log('finalSignedURL', finalSignedURL);
     evidence = download_from_s3(finalSignedURL);
     // load_evidence(evidence);
 }
 
 
 (function () {
+    // report issue
     var createEvidenceAction = document.getElementById('createEvidenceAction');
+    createEvidenceAction.disabled = true;
+    createEvidenceAction.className = 'cta-button disabled';
     createEvidenceAction.addEventListener('click', createEvidence);
 
+    // mandatory title
+    var title = document.getElementById('title');
+    title.addEventListener('keyup', function() {
+      createEvidenceAction.disabled = !this.value;
+      var className = !this.value ? 'cta-button disabled' : 'cta-button';
+      createEvidenceAction.className = className;
+    });
+
+    // debug issue
     var loadEvidenceAction = document.getElementById('loadEvidenceAction');
+    loadEvidenceAction.disabled = true;
+    loadEvidenceAction.className = 'cta-button disabled';
     loadEvidenceAction.addEventListener('click', downloadAndLoadEvidence);
+
+    // mandatory signedUrl
+    var signedUrl = document.getElementById('signedUrl');
+    signedUrl.addEventListener('keyup', function() {
+      loadEvidenceAction.disabled = !this.value;
+      var className = !this.value ? 'cta-button disabled' : 'cta-button';
+      loadEvidenceAction.className = className;
+    });
+
+    // show copySignedURL
+    var copySignedURL = document.getElementById('copySignedURL');
+    copySignedURL.addEventListener('click', function () {
+        console.log('finalSignedURL', finalSignedURL);
+        navigator.clipboard.writeText(finalSignedURL).then(function () {
+            var copySignedURL = document.getElementById('copySignedURL');
+            copySignedURL.innerHTML = 'Copied SignedURL with the Evidence data to the clipboard!';
+            copySignedURL.className = 'done';
+        });
+    });
+
 })();
