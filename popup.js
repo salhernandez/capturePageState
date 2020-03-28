@@ -5,6 +5,119 @@
 function $(id) { return document.getElementById(id); }
 function show(id) { $(id).style.display = 'block'; }
 
+var bucketName = "fyle-hackathon";
+var bucketRegion = "ap-south-1";
+var IdentityPoolId = "ap-south-1:cedc3d2e-5667-42df-a43b-c9569f6bc687";
+
+AWS.config.update({
+  region: bucketRegion,
+  credentials: new AWS.CognitoIdentityCredentials({
+    IdentityPoolId: IdentityPoolId
+  })
+});
+
+var s3 = new AWS.S3({
+  apiVersion: "2006-03-01",
+  params: { Bucket: bucketName }
+});
+
+
+upload_to_s3 = function(evidence) {
+
+  var json_str = JSON.stringify(evidence);
+  var blob = new Blob([json_str], {
+    type: "application/json"
+  });
+  var fileName = 'evidence' + (new Date()).getTime() + '.json';
+
+  var evidenceLocker = encodeURIComponent('evidence_locker') + '/';
+
+  var evidenceFileKey = evidenceLocker + fileName;
+
+  // Use S3 ManagedUpload class as it supports multipart uploads
+  var upload = new AWS.S3.ManagedUpload({
+    params: {
+      Bucket: bucketName,
+      Key: evidenceFileKey,
+      Body: blob,
+    }
+  });
+
+  var promise = upload.promise();
+
+  return promise.then(
+    function(data) {
+      var params = {
+        Bucket: bucketName,
+        Key: evidenceFileKey
+      };
+      var url = s3.getSignedUrl('getObject', params);
+      console.log('The URL is', url);
+      return url;
+    },
+    function(err) {
+      return alert("There was an error uploading your evidence. <br/> please try after sometime", err.message);
+    }
+);
+}
+download_from_s3 = function(signed_url) {
+  fetch(signed_url, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json"
+      }
+    })
+    .then(function(response) {
+      return response.blob();
+    })
+    .then(function(blob) {
+      b = new Blob([blob]);
+      return b.text();
+    })
+    .then( function (b){
+      console.log(b);
+      return JSON.parse(b);
+    })
+    .catch(function(err) {
+    console.log('error');
+  });
+}
+
+let upload_btn = document.getElementById('upload');
+
+upload_btn.onclick = function() {
+  var evidence = {
+    "url": "https://app.fyle.in",
+    "local_storage": {
+      "ajs_user_id": "\"vaishnavi.mohan@fyle.in\"",
+      "ajs_user_traits": "{\"$email\":\"vaishnavi.mohan@fyle.in\"}",
+      "fyle.recentlyUsedProjects": "{\"bae728c7-a7a3-4942-b9b5-3ca029b05891\":[]}"
+    },
+    "system_info": {
+      "productSub": "20030107",
+      "vendor": "Google Inc.",
+      "cookieEnabled": true,
+      "appVersion": "5.0 (Macintosh; Intel Mac OS X 10_14_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Safari/537.36",
+      "platform": "MacIntel",
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_2) AppleWebKit/537.36 (KHTML, like Gecko)"
+    },
+    "log_data": [{
+      "entry": {
+        "level": "warning",
+        "source": "other",
+        "text": "A cookie associated with a cross-site resource at http://checkout.stripe.com/ was set without the `SameSite` attribute. It has been blocked, as Chrome now only delivers cookies with cross-site requests if they are set with `SameSite=None` and `Secure`. You can review cookies in developer tools under Application>Storage>Cookies and see more details at https://www.chromestatus.com/feature/5088147346030592 and https://www.chromestatus.com/feature/5633521622188032.",
+        "timestamp": 1585398479768.2542,
+        "url": "https://app.fyle.in/app/main/#/enterprise/landing"
+      }
+    }],
+    "screenshot_encoded": ""
+  };
+  upload_to_s3(evidence).then(function(signed_url) {
+    return download_from_s3(signed_url);
+  });
+
+}
+
 function capturePage(cfg) {
 	function createHiDPICanvas(cfg) {
 		var canvas = document.createElement("canvas");

@@ -1,48 +1,50 @@
 {
-	"manifest_version": 2,
-	"name": "Capture Page State",
-	"description": "",
-	"version": "0.0.1",
-	"author": "Break Pointers",
-	"devtools_page": "devtools.html",
-	"web_accessible_resources": [
-		"/images/checkMark.png"
-	],
-	"icons": {
-		"16": "icon.png",
-		"48": "icon.png",
-		"128": "icon.png"
-	},
-	"background": {
-		"scripts": [
-			"background.js"
-		],
-		"persistent": true
-	},
-	"content_scripts": [
-		{
-			"matches": [
-				"<all_urls>"
-			],
-			"js": [
-				"content.js"
-			]
-		}
-	],
-	"browser_action": {
-		"default_popup": "popup.html",
-		"default_title": "Capture Page State"
-	},
-	"permissions": [
-		"activeTab",
-		"storage",
-		"downloads",
-		"notifications",
-		"<all_urls>",
-		"http://*/*",
-		"https://*/*",
-		"background",
-		"tabs",
-		"debugger"
-	]
+  "manifest_version": 2,
+  "name": "Capture Page State",
+  "description": "",
+  "version": "0.0.1",
+  "author": "Break Pointers",
+  "devtools_page": "devtools.html",
+  "web_accessible_resources": [
+    "/images/checkMark.png"
+  ],
+  "icons": {
+    "16": "icon.png",
+    "48": "icon.png",
+    "128": "icon.png"
+  },
+  "background": {
+    "scripts": [
+      "background.js"
+    ],
+    "persistent": true
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "content.js"
+      ]
+    }
+  ],
+  "browser_action": {
+    "default_popup": "popup.html",
+    "default_title": "Capture Page State"
+  },
+  "permissions": [
+    "activeTab",
+    "storage",
+    "downloads",
+    "notifications",
+    "<all_urls>",
+    "http://*/*",
+    "https://*/*",
+    "background",
+    "tabs",
+    "debugger",
+    "https://sdk.amazonaws.com/js/aws-sdk-2.283.1.min.js"
+  ],
+  "content_security_policy": "script-src 'self' https://sdk.amazonaws.com; object-src 'self'"
 }
