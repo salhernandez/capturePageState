@@ -47,7 +47,8 @@ function upload_to_s3 (evidence) {
     function(data) {
           var params = {
             Bucket: bucketName,
-            Key: evidenceFileKey
+            Key: evidenceFileKey,
+            Expires: 86400
           };
           var url = s3.getSignedUrl('getObject', params);
           console.log('The URL is', url);
