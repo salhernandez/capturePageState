@@ -219,7 +219,18 @@ var runPopup = function () {
 	captureButton.onclick = function (event) {
 		let checkboxScreenshot = document.getElementById('checkboxScreenshot');
 		let checkboxConsoleLog = document.getElementById('checkboxConsoleLog');
+		let checkboxBrowserData = document.getElementById('checkboxBrowserData');
 		let checkboxHARLog = document.getElementById('checkboxHARLog');
+
+
+		if (checkboxBrowserData.checked) {
+			chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+				chrome.tabs.sendMessage(tabs[0].id, {action: "getBrowserData"}, function(response) {
+				  console.log(response);
+				});
+			});
+		}
+
 
 		if (checkboxScreenshot.checked) {
 			runPopup()
