@@ -141,9 +141,9 @@ function downloadAndLoadEvidence (event) {
 
 
 (function () {
-    var createEvidenceAction = document.getElementById('createEvidence');
-    createEvidenceAction.onclick = createEvidence(event);
+    var createEvidenceAction = document.getElementById('createEvidenceAction');
+    createEvidenceAction.addEventListener('click', createEvidence);
 
-    var loadEvidenceAction = document.getElementById('loadEvidence');
-    loadEvidenceAction.onclick = downloadAndLoadEvidence(event);
+    var loadEvidenceAction = document.getElementById('loadEvidenceAction');
+    loadEvidenceAction.addEventListener('click', downloadAndLoadEvidence);
 })();
