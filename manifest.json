@@ -1,8 +1,8 @@
 {
   "manifest_version": 2,
-  "name": "Capture Page State",
+  "name": "Fyle Inspector",
   "description": "",
-  "version": "0.0.1",
+  "version": "1.0",
   "author": "Break Pointers",
   "devtools_page": "devtools.html",
   "web_accessible_resources": [
