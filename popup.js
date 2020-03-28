@@ -133,17 +133,29 @@ function createEvidence (event) {
     });
 }
 
-
-function downloadAndLoadEvidence (event) {
-    evidence = download_from_s3(finalSignedURL);
-    // load_evidence(evidence);
-}
-
+// function downloadAndLoadEvidence (event) {
+// 	evidence = download_from_s3(finalSignedURL);
+// }
+	
 
 (function () {
     var createEvidenceAction = document.getElementById('createEvidenceAction');
     createEvidenceAction.addEventListener('click', createEvidence);
 
     var loadEvidenceAction = document.getElementById('loadEvidenceAction');
-    loadEvidenceAction.addEventListener('click', downloadAndLoadEvidence);
+
+	loadEvidenceAction.onclick = function (event) {
+		var file = document.getElementById("file").files[0];
+		var reader = new FileReader();
+		reader.onload = function(e){
+			console.log(JSON.parse(e.target.result));
+			evidence = e.target.result;
+			chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+				chrome.tabs.sendMessage(tabs[0].id, {action: 'LoadData', evidence: evidence}, function(response) {
+					console.log(response);
+				});
+			});
+		}
+		evidence = reader.readAsText(file);
+	}
 })();
